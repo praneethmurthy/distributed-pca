@@ -1,0 +1,41 @@
+#Ignore the data files
+*.mat
+
+#ignore the figures
+*.fig
+*.eps
+*.pdf
+*.jpg
+
+#ignore latex aux files
+*.log
+*.synctex.gz
+*.aux
+*.dvi
+
+#ignore data files
+*.dat
+
+#ignore the temporary matlab files
+*.m~
+
+#ignore temp, data and figures folders
+temp/
+data/
+figures/
+results/
+
+
+#ignore vim swap files
+*.swp
+
+#other codes (older LRPR)
+RWFsimple_vid.m
+wrapper_video.m
+LRPR_prac_video.m
+TestOurinittwfP.m
+alt_min_phs_rtv_2D.m
+Test2Dvideo.m
+compute_grad2.m
+alt_min_init.m
+
