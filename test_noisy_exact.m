@@ -3,7 +3,7 @@
 
 clear
 clc
-close all
+%close all
 rng shuffle
 
 n = 100;
@@ -11,13 +11,18 @@ r = 1;
 
 signal_energy = 5;
 noise_energy = 1;
-ch_noise_energy = .1;
+ch_noise_energy = 1;
 
 u_orth = orth(randn(n, 2 * (r+1)));
 
 u_true = u_orth(:,1);
 
-val = 1;
+val = 1e-3;
+
+
+tmpmatrix = val * (u_true * u_true') + sqrt((1 - val^2))/n * (eye(n) - u_true * u_true');
+trace(tmpmatrix)
+R = chol(tmpmatrix);
 
 %noise_temp = noise_energy * sqrt(1/n) * randn(n);
 
@@ -39,7 +44,7 @@ title('singular values of original matrix')
 
 
 %% vanilla power method -- with normalization
-power_iter = 20;
+power_iter = 100;
 u_vanilla_norm = randn(n, r);
 u_vanilla_norm = u_vanilla_norm / norm(u_vanilla_norm);
 conv_vanilla_norm = zeros(1, power_iter+1);
@@ -90,7 +95,7 @@ conv_noise_norm = zeros(1, power_iter+1);
 conv_noise_norm(1) = sin(subspace(u_true, u_noise_norm));
 for ii = 1 : power_iter
     ch_noise = ch_noise_energy * randn(n, r);
-    u_noise_norm = X * (u_noise_norm + ch_noise);
+    u_noise_norm = X * u_noise_norm + ch_noise;
     u_noise_norm = u_noise_norm/norm(u_noise_norm);
     conv_noise_norm(ii+1) = sin(subspace(u_true, u_noise_norm));
 end 
@@ -114,7 +119,8 @@ conv_noise = zeros(1, power_iter+1);
 conv_noise(1) = sin(subspace(u_true, u_noise));
 for ii = 1 : power_iter
     ch_noise = ch_noise_energy * randn(n, r);
-    u_noise = X * (u_noise + ch_noise);
+    %abs(ch_noise' * u_true)
+    u_noise = X * u_noise + ch_noise;
     conv_noise(ii+1) = sin(subspace(u_true, u_noise));
 end 
 
@@ -135,10 +141,13 @@ u_noise_sig_norm = u_noise_sig_norm / norm(u_noise_sig_norm);
 conv_noise_sig_norm = zeros(1, power_iter+1);
 conv_noise_sig_norm(1) = sin(subspace(u_true, u_noise_sig_norm));
 for ii = 1 : power_iter
-    ch_noise_sig_norm = ch_noise_energy * randn(n, r);
-    ch_noise_sig_norm = (val * (u_true * u_true') + ...
-        sqrt(1 - val^2) * (eye(n) - u_true * u_true')) * ch_noise_sig_norm;
-    u_noise_sig_norm = X * (u_noise_sig_norm + ch_noise_sig_norm);
+    %ch_noise_sig_norm = ch_noise_energy * randn(n, r);
+    ch_noise_sig_norm = ch_noise_energy * R * randn(n, r);
+    ch_noise_sig_norm = ch_noise_sig_norm + val * u_true;
+    %abs(ch_noise_sig_norm' * u_true)
+    %ch_noise_sig_norm = (val * (u_true * u_true') + ...
+    %    sqrt(1 - val^2) * (eye(n) - u_true * u_true')) * ch_noise_sig_norm;
+    u_noise_sig_norm = X * u_noise_sig_norm + ch_noise_sig_norm;
     u_noise_sig_norm = u_noise_sig_norm/norm(u_noise_sig_norm);
     conv_noise_sig_norm(ii+1) = sin(subspace(u_true, u_noise_sig_norm));
 end 
@@ -161,10 +170,12 @@ u_noise_sig = randn(n, r);
 conv_noise_sig = zeros(1, power_iter+1);
 conv_noise_sig(1) = sin(subspace(u_true, u_noise_sig));
 for ii = 1 : power_iter
-    ch_noise_sig = ch_noise_energy * randn(n, r);
-    ch_noise_sig = (val * (u_true * u_true') + ...
-        sqrt(1 - val^2) * (eye(n) - u_true * u_true')) * ch_noise_sig;
-    u_noise_sig = X * (u_noise_sig + ch_noise_sig);
+    ch_noise_sig = ch_noise_energy * R * randn(n, r);
+    ch_noise_sig = ch_noise_sig + val * u_true;
+    %ch_noise_sig = (val * (u_true * u_true') + ...
+    %     sqrt(1 - val^2) * (eye(n) - u_true * u_true')) * ch_noise_sig + ch_noise_sig;
+    %abs(ch_noise_sig_norm' * u_true)
+    u_noise_sig = X * u_noise_sig + ch_noise_sig;
     conv_noise_sig(ii+1) = sin(subspace(u_true, u_noise_sig));
 end 
 
@@ -180,3 +191,33 @@ xlabel(strx, 'Interpreter', 'latex', 'FontSize', 18)
 fprintf('SE for biased noisy power method (without norm): %d \n', conv_noise_sig(end))
 
 
+
+figure;
+subplot(211)
+
+plot([1: power_iter+1], log10(conv_vanilla_norm), 'kd', 'LineStyle', '--', 'MarkerSize', 6, 'LineWidth', 2)
+hold
+plot([1: power_iter+1], log10(conv_noise_norm),'rs', 'LineStyle', '-.', 'MarkerSize', 6, 'LineWidth', 2)
+plot([1: power_iter+1], log10(conv_noise_sig_norm), 'go', 'LineStyle', '-', 'MarkerSize', 6, 'LineWidth', 2)
+axis tight
+grid on
+legend('noiseless', 'with channel noise', 'with biased channel noise')
+stry = '$$\log(SE(\hat{u}_t, u))$$';
+strx = '$$\mathrm{power\ iterations} (t) $$';
+ylabel(stry, 'Interpreter', 'latex', 'FontSize', 18) 
+xlabel(strx, 'Interpreter', 'latex', 'FontSize', 18) 
+title('with normalization')
+
+subplot(212)
+plot([1: power_iter+1], log10(conv_vanilla), 'k+', 'LineStyle', '--', 'MarkerSize', 6, 'LineWidth', 2)
+hold
+plot([1: power_iter+1], log10(conv_noise),'rs', 'LineStyle', '-.', 'MarkerSize', 6, 'LineWidth', 2)
+plot([1: power_iter+1], log10(conv_noise_sig), 'go', 'LineStyle', '-', 'MarkerSize', 6, 'LineWidth', 2)
+axis tight
+grid on
+legend('noiseless', 'with channel noise', 'with biased channel noise')
+stry = '$$\log(SE(\hat{u}_t, u))$$';
+strx = '$$\mathrm{power\ iterations} (t) $$';
+ylabel(stry, 'Interpreter', 'latex', 'FontSize', 18) 
+xlabel(strx, 'Interpreter', 'latex', 'FontSize', 18) 
+title('without normalization')
