@@ -15,6 +15,8 @@ ch_noise_energy = 1;
 
 
 
+%% generate a unit norm "true eigenvector", and generate the underlying data matrix
+
 u_true = rand(n, r);
 u_true = u_true/norm(u_true);
 
@@ -22,7 +24,6 @@ val = .1;
 
 noise_temp = noise_energy * sqrt(1/n) * randn(n);
 X = signal_energy^2 * (u_true * u_true') + (noise_temp + noise_temp');
-%X = X/norm(X);
 
 [u_init, s_init, v_init] = svds(X, r);
 
