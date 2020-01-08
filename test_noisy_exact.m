@@ -164,7 +164,10 @@ ylabel(stry, 'Interpreter', 'latex', 'FontSize', 18)
 xlabel(strx, 'Interpreter', 'latex', 'FontSize', 18) 
 title('PM without normalization')
 
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%the algorithm works even with uniform r.v. initialization as opposed to
+%gaussian init. This is interesting, and should ideally be used to
+%strengtehn the theory
 
 
 
