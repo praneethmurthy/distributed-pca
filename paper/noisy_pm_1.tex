@@ -1,0 +1,374 @@
+\documentclass[10pt]{article}
+\usepackage{amsmath, mathtools, amsfonts, bm, amssymb, amsthm,graphicx,epstopdf, caption}%, subfigure}
+\usepackage [top = 1.5cm, left = 1.5cm, right = 1.5cm, bottom = 1.5cm]{geometry}%, left = 1.5cm, right = 1.8cm, bottom = 1.5cm]{geometry}
+\usepackage{algorithm, algorithmic}
+\usepackage{appendix}
+\usepackage{bm}
+\title{\textbf{Noisy Power method}}
+\author{}
+\date{}
+\usepackage{tikz}
+\newcommand{\yt}{\bm{y}_t}
+\newcommand{\by}{\bm{y}}
+\newcommand{\lt}{\bm{\ell}_t}
+\newcommand{\wt}{\bm{w}_t}
+\newcommand{\pt}{\bm{U}}
+\newcommand{\at}{\bm{a}_t}
+\newcommand{\mt}{\bm{M}_t}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\bv}{\bm{v}}
+\newcommand{\bq}{\bm{q}}
+\newcommand{\bs}{\bm{s}}
+\newcommand{\K}{\bm{K}}
+
+\usepackage{amsmath,amssymb,amsthm, bm}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lem}[theorem]{Lemma}
+\newtheorem{sigmodel}[theorem]{Assumption}%{Model}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{ass}[theorem]{Assumption}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{fact}[theorem]{Fact}
+\newtheorem{heuristic}[theorem]{Heuristic}
+\newcommand{\norm}[1]{\left\|#1\right\|}
+ \newcommand{\indep}{\perp \!\!\!\perp}
+
+\renewcommand{\subsubsection}[1]{{\bf #1. }}
+\renewcommand{\qedsymbol}{$\boxtimes$}
+\usepackage{color}
+\begin{document}
+\maketitle
+
+
+\section{Problem Statement}
+In this document we study the problem of analyzing the ``noisy power method''. We are given a fixed matrix $A \in \R^{n \times n}$ such that $A = A^T$ and $A \succeq 0$. Furthermore, we assume that there exist orthonormal eigenvectors, $u_1^*, \cdots u_n^*$ such that $A u_i^* = \lambda_i u_i^*$ for all $i$ and without loss of generality, we set $\lambda_1 > \lambda_2 \geq \lambda_3 \geq \cdots \geq \lambda_n \geq 0$. In other words, we have $A = U^* \Lambda (U^*)^T$ The goal is to iteratively compute an estimate of the top eigenvector, $u_1^*$. 
+
+However, due to various reasons, we cannot directly use the power method, and instead we can only use an approximation since we are able to only access noisy matrix-vector/matrix-matrix  products. We will use the following algorithm
+
+\section{Algorithm}
+In this document we assume that at each iteration, $t$, we only access the noisy versions of the matrix vector/matrix matrix products, i.e., we analyze the following algorithm
+
+\newcommand{\Y}{\bm{Y}}
+\newcommand{\z}{\bm{z}}
+\begin{algorithm}[H]
+\caption{Noisy power method -- rank 1}\label{algo:rank1}
+  \begin{algorithmic}[1]
+    \REQUIRE $A$ 
+    \STATE $u_0 \sim \mathcal{N}(0, I_{n\times n})$ (Initialization) 
+    \STATE $u_0 = u_0/\|u_0\|_2$ (step is excluded currently in analysis)
+    \FOR{$t=1,\dots, T$}
+    \STATE $w_t \sim \mathcal{N}(0, \sigma_c^2 I_{n\times n})$
+    \STATE $u_t = A u_{t-1} + w_t$ 
+    \STATE $u_t = u_t / \|u_t\|_2$ (step is excluded currently in analysis)
+    \ENDFOR
+    \ENSURE $u_T$ 
+  \end{algorithmic}
+\end{algorithm}
+
+\newcommand{\E}{\mathbb{E}}
+\section{Preliminary analysis}
+We assume that the channel noise, $w_t$ at each iteration is identically distributed, and is independent of $A$ (if this is random), $u_0$ and all the previous $w_{1:t-1}$. Notice that we can write the iterates as follows
+\begin{gather*}
+u_0 = u_0 \\
+u_1 = A u_0 + w_1 \\
+u_2 = A u_1 + w_2 = A^2 u_0 + A w_1 + w_2\\
+\vdots \\
+u_t = A^t u_0 + \sum_{\tau = 1}^t A^{t-\tau} w_\tau
+\end{gather*}
+For the purpose of analysis, we write $u_0 = \alpha_1 u_1^* + \alpha_2 u_2^* + \cdots + \alpha_n u_n^*$ and notice that $\sum_i \alpha_i^2 = \|u_0\|_2^2$. Similarly, for all $t$, we write $w_t = \beta_{t,a} u_1^* + \beta_{t,2} u_2^* +  \cdots + \beta_{t,n}^* u_n^*$, and here too, $\sum_i \beta_{t,i}^2 = \|w_t\|_2^2$. 
+
+Observe that the $\alpha_i$'s and $\beta_{t,i}$'s are zero-mean random variables, and $\E[\alpha_i^2] = 1$ and $\E[\beta_{t,i}^2] = \sigma_c^2$
+
+We can write the expression for $u_t$ as follows
+\begin{align*}
+u_t &= A^t u_0 + \sum_{\tau=1}^t A^{t - \tau} w_\tau \\
+&= A^t \left( \sum_{i=1}^n \alpha_i u_i^* \right) + \sum_{\tau=1}^t A^{t - \tau} \left( \sum_{i=1}^n \beta_{\tau,i} u_i^* \right) \\
+&= \sum_{i=1}^n \alpha_i (A^t u_i^*)  + \sum_{\tau=1}^t \sum_{i=1}^n \beta_{\tau,i} (A^{t - \tau} u_i^*)  \\
+&= \sum_{i=1}^n \alpha_i (\lambda_i^t u_i^*)  + \sum_{\tau=1}^t \sum_{i=1}^n \beta_{\tau,i} (\lambda_i^{t - \tau} u_i^*)  \\
+&= \sum_{i=1}^n \alpha_i \lambda_i^t u_i^*  + \sum_{i=1}^n \sum_{\tau=1}^t  \beta_{\tau,i} \lambda_i^{t - \tau} u_i^*  \\
+&= \sum_{i=1}^n \left(\alpha_i \lambda_i^t + \sum_{\tau=1}^t  \beta_{\tau,i} \lambda_i^{t - \tau}\right) u_i^*  \\
+&:= \sum_{i=1}^n \delta_{t,i}  u_i^*
+\end{align*}
+
+\section{High probability bounds for $\sin\theta$}
+
+
+Now, we will bound the sine of the angle between the estimate at iteration $t$ and the desired eigenvector, $u_1^*$. The expression is given as 
+\begin{align*}
+\sin^2\theta(u_1^*, u_t) &= \norm{u_1^* - \frac{u_t}{\|u_t\|^2} \langle u_t, u_1^*\rangle}^2 = \norm{u_1^* - \frac{u_t}{\|u_t\|^2} \delta_{t,1}}^2 \\
+&= (u_1^*)^Tu_1^* + \frac{u_t^T u_t (\delta_{t,1}^2)}{\|u_t\|^4} - 2 \frac{(u_1^*)^T u_t (\delta_{t,1})}{\|u_t\|^2 } \\
+&= 1 - \frac{\delta_{t,1}^2}{\|u_t\|^2} = 1 - \cos^2\theta(u_1^*, u_t)
+\end{align*}
+
+we will now derive high probability bounds on $\delta_{t,1}$, $\|u_t\|$. Firstly, notice that for any $t,i$, $\delta_{t,i}$ is a Gaussian r.v. since it is the linear combination of $t+1$ gaussian r.v.'s. Furthermore, $\E[\delta_{t,i}] = 0$ and 
+\begin{align*}
+\E[\delta_{t,i}^2] = \E[(\alpha_i \lambda_i^t + \sum_{\tau=1}^t \beta_{\tau,i} \lambda_i^{t-\tau})^2] = \lambda_i^{2t} + \sigma_c^2 \sum_{\tau=1}^t \lambda_i^{2(t-\tau)} = \lambda_i^{2t} + \sigma_c^2 \frac{\lambda_i^{2t}-1}{\lambda_i^2-1} := \sigma_{t,i}^2
+\end{align*}
+
+\noindent For simplicity, consider the case when only eigenvalues are non-zero, i.e., $\delta_{t,i} = 0$, $i \geq 3$. 
+
+For any given $t,i$, since $\delta_{t,i}$ is Gaussian, we know that $Y_{t,i} = \delta_{t,i}^2 - \sigma_{t,i}^2$ is a zero-mean sub exponential r.v. with $\|Y_{t,i}\|_{\psi_1} \leq 2 \sigma_{t,i}^2$. Thus, using the tail bound for sub-exponential r.v.'s we know that
+
+\begin{align}\label{eq:del_bnd}
+\Pr\left( Y_{t,i} \geq \epsilon_{t,i} \right) \leq \exp\left[-c\min\left(\frac{\epsilon_{t,i}^2}{\sigma_{t,i}^4}, \frac{\epsilon_{t,i}}{\sigma_{t,i}^2} \right)\right]
+\end{align}
+
+
+Now, for some $\gamma \in (0,1)$, set $\epsilon_{t,1} = \gamma \sigma_{t,1}^2$ and $\epsilon_{t,2} = \gamma \sigma_{t,2}^2$.
+Thus,
+\begin{align*}
+&\Pr\left( \delta_{t,1}^2 \geq (1 - \gamma) \sigma_{t,1}^2 \right) \geq 1 - \exp(-c \gamma^2) \\ 
+&\Pr\left( \delta_{t,2}^2 \leq (1 + \gamma) \sigma_{t,2}^2 \right) \geq 1 - \exp(-c \gamma^2) \\ 
+\end{align*}
+
+And thus, with probability at least $ 1 - 2\exp(-c \gamma^2)$ (also assume that $\lambda_1 > \lambda_2 \geq 1$),
+\begin{align*}
+\frac{\delta_{t,2}^2}{\delta_{t,1}^2} &\leq  \left(\frac{1 + \gamma}{1 - \gamma}\right) \frac{\sigma_{t,2}^2}{\sigma_{t,1}^2} = C_\gamma \frac{\sigma_{t,2}^2}{\sigma_{t,1}^2} \\
+&= C_\gamma \frac{\lambda_2^{2t} + \sigma_c^2 \frac{\lambda_2^{2t}-1}{\lambda_2^2-1}}{\lambda_1^{2t} + \sigma_c^2 \frac{\lambda_1^{2t}-1}{\lambda_1^2-1}} \leq C_\gamma \frac{\lambda_2^{2t} + \sigma_c^2 \frac{\lambda_2^{2t}}{\lambda_2^2-1}}{\lambda_1^{2t} + \sigma_c^2 \lambda_1^{2t-2}} \leq C_\gamma \left(\frac{\lambda_2}{\lambda_1}\right)^{2t} \frac{1 + \frac{\sigma_c^2}{\lambda_2^2 - 1}}{1 + \frac{\sigma_c^2}{\lambda_1^{2} }} \\
+&= \left(\frac{1 + \gamma}{1 - \gamma}\right)  \cdot \left(\frac{\lambda_2}{\lambda_1}\right)^{2t} \cdot \frac{\lambda_1^2}{\lambda_1^2 + \sigma_c^2} \cdot \frac{\lambda_2^2 - 1 + \sigma_c^2}{\lambda_2^2-1}
+\end{align*}
+
+now, as long as $\sigma_c^2$ is small enough, the last two terms can be upper bounded a small numerical constant. The first term, can also be bounded above by a small constant by picking $\gamma$ small enough. The second term goes to $0$ as $t\to \infty$ and thus, we can ensure $\frac{\delta_{t,2}^2}{\delta_{t,1}^2} \leq \epsilon$ for any arbitrary $\epsilon$. Notice that 
+\begin{align*}
+\cos^2\theta(u_t, u_1^*)  = \frac{1}{1 + \frac{\delta_{t,2}^2}{\delta_{t,1}^2}}
+\end{align*}
+and to obtain $\sin^2\theta(u_1,u_1^*) \leq \epsilon^2$, we require
+
+\begin{align*}
+&1 - \epsilon^2\leq \cos^2\theta(u_t, u_1^*)  = \frac{1}{1 + \frac{\delta_{t,2}^2}{\delta_{t,1}^2}} \\
+&\implies \frac{\delta_{t,2}^2}{\delta_{t,1}^2} \leq \epsilon^2 \leq \frac{\epsilon^2}{1 - \epsilon^2}
+\end{align*}
+suffices. In the setting of $\lambda_2 \geq 1$, notice that irrespective of the value of $\sigma_c$, as long as 
+\begin{align*}
+t \geq C\frac{\log\left(\left(\frac{1 + \gamma}{1 - \gamma}\right)  \frac{\lambda_1^2}{\lambda_1^2 + \sigma_c^2}  \frac{\lambda_2^2 - 1 + \sigma_c^2}{\lambda_2^2-1} /\epsilon\right)}{\log(\lambda_1/\lambda_2)}
+\end{align*}
+with probablity at least $1 - 2 \exp(-c\gamma^2)$, $\sin\theta(u_t, u_1^*) \leq \epsilon$. 
+
+
+
+
+% Thus, we know that with probability at least $1 - 2\exp(-c \gamma^2)$, $$ and $\delta_{t,2}^2 \leq (1 + \gamma) \sigma_{t,2}^2$
+
+
+\clearpage
+
+{\color{teal}
+\begin{theorem}
+Let $u_1^*$ denote the top eigenvector of $A \in \R^{n \times n}$, and let $\lambda_1 > \lambda_2 \geq \lambda_3 \geq \cdots \geq \lambda_n \geq 0$ denote its eigenvalues. Suppose that Algorithm \ref{algo:rank1} is initialized with $u_0 \sim \mathcal{N}(0, I_{n \times n})$ and at each iteration, the ``channel noise'' is independent (of all previous noise, the initialization, $u_0$ and $A$, if $A$ is not deterministic) and such for all $t$ that $w_t  \sim \mathcal{N}(0, \sigma_c^2 I_{n \times n})$. Pick an $\epsilon^* \in (0,1)$. 
+\begin{itemize}
+\item Let $\lambda_2 > 1$. And let for all $t$ {\color{blue}(the $\sqrt{n}$ can be eliminated by considering the energy, as opposed to gap, will do that after exam)},
+
+\begin{align*}
+\sigma_c^2 \leq \sqrt{\frac{C_{\epsilon^*}}{n}} \left(\frac{\lambda_1}{\lambda_2}\right)^t \varepsilon
+\end{align*}
+
+Then, with probability at least $1 - 2 \exp(-c (\epsilon^*)^2)$, the algorithm estimate at iteration $t$, $u_t$ satisfies
+\begin{align*}
+\sin^2\theta(u_t, u_1^*) \leq \varepsilon^2
+\end{align*}
+
+%and if $t \geq C \frac{\log((1 + \sigma_c^2)/\epsilon^*)}{\log(\lambda_1/\lambda_2)}$, $\sin^2\theta(u_t, u_1^*) \leq 3 \epsilon^*$
+{\color{blue} ignore for now
+\item If $\lambda_2 \leq 1$. Then, with probability at least $1 - 2 \exp(-c (\epsilon^*)^2)$, the algorithm estimate at iteration $t$, $u_t$ satisfies
+\begin{align*}
+\sin^2\theta(u_t, u_1^*) \leq 2 \epsilon^* + C (1+\sigma_c^2) \left(\frac{\lambda_2}{\lambda_1}\right)^{2t}
+\end{align*}
+and if $t \geq C \frac{\log((1 + \sigma_c^2)/\epsilon^*)}{\log(\lambda_1/\lambda_2)}$, $\sin^2\theta(u_t, u_1^*) \leq 3 \epsilon^*$
+}
+\end{itemize}
+\end{theorem}
+}
+
+{
+\color{red}
+Firstly, we notice that for any $t,i$, $\delta_{t,i}$ is a Gaussian r.v. since it is the linear combination of $t+1$ gaussian r.v.'s. Furthermore, $\E[\delta_{t,i}] = 0$ and 
+\begin{align*}
+\E[\delta_{t,i}^2] = \E[(\alpha_i \lambda_i^t + \sum_{\tau=1}^t \beta_{\tau,i} \lambda_i^{t-\tau})^2] = \lambda_i^{2t} + \sigma_c^2 \sum_{\tau=1}^t \lambda_i^{2(t-\tau)} = \lambda_i^{2t} + \sigma_c^2 \frac{\lambda_i^{2t}-1}{\lambda_i^2-1} := \sigma_{t,i}^2
+\end{align*}
+
+%{\color{red}
+%Thus, using the standard tail bound for a Gaussian r.v., we know that 
+%\begin{align}
+%\Pr\left( |\delta_{t,i}| \geq \epsilon_{t,i} \right) \leq 2 \exp\left(-\frac{\epsilon_{t,i}^2}{\sigma_{t,i}^2}\right)
+%\end{align}
+%}
+
+
+And thus, $Y_{t,i} = \delta_{t,i}^2 - \sigma_{t,i}^2$ is a zero-mean sub exponential r.v. with $\|Y_{t,i}\|_{\psi_1} \leq 2 \sigma_{t,i}^2$. Thus, using the tail bound for sub-exponential r.v.'s we know that
+
+\begin{align}\label{eq:del_bnd}
+\Pr\left( |Y_{t,i}| \geq \epsilon_{t,i} \right) \leq 2 \exp\left[-c\min\left(\frac{\epsilon_{t,i}^2}{\sigma_{t,i}^4}, \frac{\epsilon_{t,i}}{\sigma_{t,i}^2} \right)\right]
+\end{align}
+
+
+We will use \eqref{eq:del_bnd} with an appropriately defined $\epsilon_{t,i}$ below. Furthermore, $\delta_{t,i}$'s are zero-mean random variables. This is because all the $\alpha_i$'s and the  $\beta_{\tau,i}$'s are zero mean. Additionally, for $i \neq j$, $\E[\delta_{t,i} \delta_{t,j}] = \E[\delta_{t,i}] \E[\delta_{t,j}]$'s (they are actually independent). This is because, $u_0 \sim \mathcal{N}(0, I_{n \times n})$, $w_t \sim \mathcal{N}(0, \sigma_c^2 I_{n \times n})$, and also $w_t \indep w_{[1:t-1]},\ A,\ u_0$. Finally, $\delta_{t,i}^2$'s are sub-exponential (in fact $\chi_n^2$) r.v.'s since $\delta_{t,i}$'s are gaussian. 
+
+Recall that $\|\delta_{t,i}^2\|_{\psi_1} = \|\delta_{t,i}\|_{\psi_2}^2 = \sigma_{t,i}^2$ and define $X_{t,i} = \delta_{t,i}^2 - \sigma_{t,i}^2$. We now use Bernstein's inequality to obtain
+\begin{align}\label{eq:norm_bnd}
+\Pr\left( \bigg|\sum_{i=1}^n X_{t,i}\bigg| > \epsilon_n \right) \leq 2 \exp\left[ -c \min\left( \frac{\epsilon_n^2}{\sum_i \sigma_{t,i}^4}, \frac{\epsilon_n}{\sigma_{t,1}} \right) \right]
+\end{align}
+
+First, we bound $\delta_{t,i}$ by setting
+\begin{align*}
+\epsilon_{t,i} = \epsilon^* \sigma_{t,i}^2 
+\end{align*}
+for some $\epsilon^* \in (0,1)$ we get using the above and \eqref{eq:del_bnd}
+\begin{align*}
+\Pr\left( \delta_{t,i}^2 \leq (1 - \epsilon^*) \sigma_{t,i}^2 \right) \leq 2 \exp\left( - c(\epsilon^*)^2 \right) 
+\end{align*}
+
+Now, we bound $\|u_t\|$ by setting 
+\begin{align*}
+\epsilon_n = \epsilon^* \sum_{i} \sigma_{t,i}^2
+\end{align*}
+and now using \eqref{eq:norm_bnd} we get
+\begin{align*}
+\Pr\left( \bigg|\sum_i X_{t,i} \bigg| \geq \epsilon^* \sum_i \sigma_{t,i}^2 \right) \leq 2 \exp\left[ -c \min \left( \frac{(\epsilon^*)^2 (\sum_{i} \sigma_{t,i}^2)^2}{\sum \sigma_{t,i}^4}, \frac{\epsilon^* \sum_i \sigma_{t,i}^2}{\sigma_{t,1}^2} \right) \right]
+\end{align*}
+and roughly (verify this), the first term dominates in the above so that we again get a failure probability of $2 \exp(-c(\epsilon^*)^2)$.
+
+
+What these two mean is the following: with probability at least $1 - \exp( -c (\epsilon^*)^2 )$, 
+\begin{align*}
+\delta_{t,1}^2 \geq (1 - \epsilon^*) \sigma_{t,1}^2 \quad \text{and} \quad \|u_t\|^2 \leq (1 + \epsilon^*) \sum_i \sigma_{t,i}^2
+\end{align*}
+thus, with probability at least $1 - 2 \exp( -c (\epsilon^*)^2 )$, 
+\begin{align*}
+\sin^2\theta(u_t, u_1^*) \leq 1 - \frac{(1 - \epsilon^*) \sigma_{t,1}^2}{ (1 + \epsilon^*) \sum_i \sigma_{t,i}^2 } = 1 - C_{\epsilon^*} \frac{\sigma_{t,1}^2}{\sum_i \sigma_{t,i}^2}
+\end{align*}
+Now, we derive the requirement on $\sigma_c^2$ so that the right hand side above can be reduced to an $\varepsilon^2$ which implies $\varepsilon$-closeness to the true eigenvector. 
+
+{\color{red} (First, we will use a loose bound and quantify this in terms of the eigengap, as opposed to the energy condition)}
+
+Notice that if we can ensure 
+\begin{align}\label{eq:suff_1}
+\sum_{i} \frac{\sigma_{t,i}^2}{\sigma_{t,1}^2} = 1 + \sum_{i \geq 2} \frac{\sigma_{t,i}^2}{\sigma_{t,1}^2} \leq C_{\epsilon^*} \frac{1}{1-\varepsilon^2} 
+\end{align}
+ we will achieve $\varepsilon$-closeness. To this end, we derive the sufficient conditions. First consider the r.h.s. of \eqref{eq:suff_1}
+\begin{align*}
+\mathrm{r.h.s.} = C_{\epsilon^*} \frac{1}{1-\varepsilon^2}  - 1  = C_{\epsilon^*}\left(1 +  \frac{\varepsilon^2}{1-\varepsilon^2}\right)  - 1 = \frac{C_{\epsilon^*}\varepsilon^2}{1 - \varepsilon^2} + (C_{\epsilon^*} - 1) = \frac{C_{\epsilon^*}\varepsilon^2}{1 - \varepsilon^2} - \frac{2\epsilon^*}{1+\epsilon^*}
+\end{align*} 
+now, the practical regime is when $\varepsilon \ll \epsilon^*$ since $\varepsilon$ controls the final accuracy whereas $\epsilon^*$ controls the probability, and we can set $\epsilon =  0.8$, say so that the failure probability is $\approx 2 \exp(-0.8^2) \approx 0.1$ and thus
+\begin{align*}
+\mathrm{r.h.s.} \geq \frac{C_{\epsilon^*}\varepsilon^2}{2(1 - \varepsilon^2)} \geq 0.5 C_{\epsilon^*} \varepsilon^2
+\end{align*}
+and now, considering the l.h.s of \eqref{eq:suff_1}, 
+\begin{align*}
+\mathrm{l.h.s.} = \sum_{i \geq 2}  \frac{\sigma_{t,i}^2}{\sigma_{t,1}^2} = \sum_{i \geq 2} \frac{\lambda_i^{2t} + \sigma_c^2 \frac{\lambda_i^{2t}-1}{\lambda_i^2-1}}{\lambda_1^{2t} + \sigma_c^2 \frac{\lambda_1^{2t}-1}{\lambda_1^2-1}} \leq \sum_{i \geq 2} \frac{\lambda_i^{2t} + \sigma_c^2 \frac{\lambda_i^{2t}-1}{\lambda_i^2-1}}{\lambda_1^{2t}} \leq n \frac{\lambda_2^{2t} + \sigma_c^2 \frac{\lambda_2^{2t}-1}{\lambda_2^2-1}}{\lambda_1^{2t}}
+\end{align*}
+and thus,
+\begin{align*}
+\mathrm{l.h.s.} \leq 
+\begin{cases}
+n (1 + \sigma_c^2)  \left(\frac{\lambda_2}{\lambda_1}\right)^{2t}, \quad \lambda_2 \geq 1 \\
+n \left(\frac{\lambda_2}{\lambda_1}\right)^{2t} + \sigma_c^2, \quad \lambda_2 < 1 \\
+\end{cases}
+\end{align*}
+And thus we arrive at the following 
+ \begin{align*}
+&1 + n \cdot \frac{\lambda_2^{2t} + \sigma_c^2 (\lambda_2^{2t} -1)}{\lambda_1^{2t}} \approx C_{\epsilon^*}\left(1 + \frac{\varepsilon^2}{1 - \varepsilon^2}\right) \\
+\implies& n \cdot \frac{(1+\sigma_c^2)\lambda_2^{2t}}{\lambda_1^{2t}} \approx \frac{C_{\epsilon^*} \varepsilon^2}{1 - \varepsilon^2} \\
+  \end{align*}
+and thus, if we assume that 
+\begin{align*}
+\sigma_c^2 \leq \sqrt{\frac{C_{\epsilon^*}}{n}} \left(\frac{\lambda_1}{\lambda_2}\right)^t \varepsilon
+\end{align*}
+we can achieve $\varepsilon$-closeness, with probability at least $1 - 2 \exp(-c(\epsilon^*)^2)$.
+}
+
+
+\clearpage
+\newcommand{\SE}{\mathrm{SE}}
+\section{Numerical Experiments}
+In this section we will describe the results of the numerical expreiments on synthetic data. We generate the data matrix $A = \sum_{i=1}^2 \lambda_1 u_i^* (u_i^*)^T$, where $u_i^*$ are columns of a orthnormalized i.i.d. Gaussian matrix. $A$ is a rank-$2$ matrix with a ``eigengap'' of $\lambda_2/\lambda_1$. We generate the ''channel noise'' $w_t$ at each iteration as $w_t \overset{iid}{\sim} \mathcal{N}(0, \sigma_c^2 I_n)$. We present the results below for various values of $\lambda_1, \lambda_2, \sigma_c$. 
+
+We try two different variants of the power method. In the first we normalize the estimate $u_t$ at each iteration which we refer to as {\em PM with normalization} and the second where we do not normalize, and refer to this as {\em PM without normalization}. We plot the subspace error, $\SE(u_t, u_1^*)$ w.r.t the iteration, $t$. For the purpose of comparison, in each experiment, we also plot the subspace error for $\sigma_c = 0$, and refer to this case as {\em noiseless}. 
+
+We see from Figs. \ref{fig:l1g1_1}, \ref{fig:l1g1_2} that in the case of $\lambda_1 > 1$, the normalized method does not work when the channel noise energy, $\sigma_c$ is large. However, considering only the un-normalized case in the sequel, notice that even if we set $\sigma_c \gg \lambda_1$, the algorithm converges to the true solution, but requires more number of iterations.
+
+\begin{minipage}[t]{.5\linewidth}
+\centering
+\includegraphics[scale=.5]{figures/l1_10_l2_5e-1_sig_10.eps}
+\captionof{figure}{$\lambda_1 = 100$, $\lambda_2 = 0.25$, $\sigma_c^2 = 100$}
+\label{fig:l1g1_1}
+\end{minipage}%
+\begin{minipage}[t]{.5\linewidth}
+\centering
+\includegraphics[scale=.6]{figures/l1_125e-2_l2_5e-1_sig_10.eps}
+\captionof{figure}{$\lambda_1 = 2.25$, $\lambda_2 = 0.25$, $\sigma_c^2 = 100$}
+\label{fig:l1g1_2}
+\end{minipage}
+
+However, when we have $\lambda_1 \leq 1$, we do not observe convergence. We show the results for this case in Figs. \ref{fig:l1e1_1}, \ref{fig:l1l1_1}. Notice that in this setting, Both methods fail to converge, but the normalized verison is slightly better in this case as compared to $\lambda_1 > 1$ case, but it still does not work. Furthermore, increasing the channel noise energy $\sigma_c$ does not significantly alter the convergence of either algorithm, but we do not show that comparison here. 
+
+\begin{minipage}[t]{.5\linewidth}
+\centering
+\includegraphics[scale=.6]{figures/l1_1_l2_25e-41_sig_1e-6.eps}
+\captionof{figure}{$\lambda_1 = 1$, $\lambda_2 = 2.5 \times 10^{-3}$, $\sigma_c^2 = 10^{-6}$}
+\label{fig:l1e1_1}
+\end{minipage}%
+\begin{minipage}[t]{.5\linewidth}
+\centering
+\includegraphics[scale=.55]{figures/l1_81e-2_l2_25e-41_sig_1e-6.eps}
+\captionof{figure}{$\lambda_1 = 0.81$, $\lambda_2 = 2.5 \times 10^{-3}$, $\sigma_c^2 = 10^{-6}$}
+\label{fig:l1l1_1}
+\end{minipage}
+
+Finally, to alleviate the issue of $\lambda_1 \leq 1$, we consider the case of scaling the entries of the matrix $A$ to ensure that $\lambda_1 > 1$. In particular, we divide each entry by $2\lambda_1$. The results for this are presented in Fig. \ref{fig:l1e1_1_n}, \ref{fig:l1l1_1_n}. All the other parameters are the same as in the case of $\lambda_1 \leq 1$. In this case, as expected, the un-normalized power method is able to recover the true direction accurately. 
+
+\begin{minipage}[t]{.5\linewidth}
+\centering
+\includegraphics[scale=.6]{figures/l1_1_l2_25e-41_sig_1e-6_norm.eps}
+\captionof{figure}{$\lambda_1 = 1$, $\lambda_2 = 2.5 \times 10^{-3}$, $\sigma_c^2 = 10^{-6}$}
+\label{fig:l1e1_1_n}
+\end{minipage}%
+\begin{minipage}[t]{.5\linewidth}
+\centering
+\includegraphics[scale=.6]{figures/l1_81e-2_l2_25e-41_sig_1e-6_norm.eps}
+\captionof{figure}{$\lambda_1 = 0.81$, $\lambda_2 = 2.5 \times 10^{-3}$, $\sigma_c^2 = 10^{-6}$}
+\label{fig:l1l1_1_n}
+\end{minipage}
+
+\section{Literature Survey}
+First we describe the problem setting of several related problems. 
+
+\subsection{Problem Settings}
+\subsubsection{Streaming PCA}
+In this problem, the goal is to compute the top singular vectors of a data stream. Typically, the data is assumed to be drawd i.i.d. from some ``nice'' distribution, and the constraint is that (i) one cannot store all the data in memory; (ii) one cannot make too many passes on the data.
+
+Here we summarize the main results of some prominent papers in this area. 
+
+{\bf Noisy Power method \cite{noisy_pm}:} To the best of our knowledge, this was one of the first papers to provide a robust convergence analysis of power method. In particular, their results shows that (i) in the context of streaming PCA, 
+
+\color{blue}
+\section{Discussion}
+\begin{enumerate}
+\item Note that in fact, if using naive bounds, in fact $C \approx n - 1$. maybe there is a better way to bound this which leverages independence etc. 
+\item not a fully formed thought, but are there any connections between this and ``convergence of proximal algorithms'' for convex objectives?
+\item this is not really convergence of output, it says normalized vector is close to ground truth
+\item how to explain the fact that $\lambda_2$ and not $\lambda_1$ requires assumptions? is there a way to combine the cases, and absorb noise?
+\end{enumerate}
+
+\subsection{points of discussion after meeting}
+
+\begin{enumerate}
+\item existing work in this area
+\item variants of power method
+\item can look at coloured noise, across \em{space and time}
+\item security -- byzantine issues
+\item any relation to momentum/proximal algorithm convergence?
+\item extension to lrmc etc
+\end{enumerate}
+
+\color{black}
+\bibliographystyle{apalike}
+\bibliography{numerical_analysis}
+
+
+\end{document} 
+
+
+
