@@ -10,22 +10,21 @@ clc
 close all
 rng shuffle
 
-
 %% define data model parameters
 n = 100;
-r = 1;
-signal_energy = 1;
+r = 5;
+signal_energy = 1.5;
 noise_energy = .05;
-ch_noise_energy = 1e-3;
+ch_noise_energy = 10;
 
 
 %% generate the "rectangular" data points, and also the sample covariance
 u_orth = orth(randn(n, 2 * (r+1)));
-u_true = u_orth(:,1);
-Y = u_orth(:,1:2) * diag([signal_energy, noise_energy]) * u_orth(:, 3:4)';
+u_true = u_orth(:,1:r);
+Y = u_orth(:,1:r+1) * diag([repmat(signal_energy, 1, r), noise_energy]) * u_orth(:, r+2:end)';
 X = Y * Y';
 
-X =  X / (0.5 * signal_energy^2);
+%X =  X / (0.5 * signal_energy^2);
 %verifying that the sample PC is close to the true PC
 [u_init, s_init, v_init] = svds(X, r);
 fprintf('SE after adding small noise: %d \n', ...
