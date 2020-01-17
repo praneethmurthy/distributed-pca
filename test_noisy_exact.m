@@ -12,9 +12,9 @@ rng shuffle
 
 %% define data model parameters
 n = 100;
-r = 5;
+r = 1;
 signal_energy = 1.5;
-noise_energy = .05;
+noise_energy = 0.05;
 ch_noise_energy = 10;
 
 
