@@ -526,9 +526,9 @@ U_t = A^t U_0 + \sum_{\tau = 1}^t A^{t-\tau} W_\tau
 Further, for any matrix $M$ we can decompose it along the desired subspace, and orthogonal to it as $M = U U^T M + U_{\perp} U_{\perp}^T M$ and thus, we write
 \begin{gather*}
 U_0 = U U^T U_0 + U_{\perp} U_{\perp}^T U_0 := U \ucos + U_{\perp} \usin \\
-W_t = U U^T W_t + U_{\perp} U_{\perp}^T W_t := U \wcos_t + U_{\perp} \wsin_t \\
+W_t = U U^T W_t + U_{\perp} U_{\perp}^T W_t := U \wcos_t + U_{\perp} \wsin_t 
 \end{gather*}
-and analogous to the rank $1$ setting, we have that $\|U_0\|_2^2 = \|\ucos\|_2^2 + \|\usin\|_2^2$ and $\|W_t\|_2^2 = \|\wcos_t\|_2^2 + \|\wsin\|_2^2$. Additionally, 
+Additionally, 
 \begin{align*}
 U_t &= A^t (U \ucos + U_{\perp} \usin) + \sum_{\tau = 1}^t A^{t-\tau} (U \wcos_\tau + U_{\perp} \wsin_\tau) \\
 &= U \Lambda^t \ucos + U_\perp \Lambda_\perp^t \usin + \sum_{\tau = 1}^t U \Lambda^{t-\tau} \wcos_\tau + U_\perp \Lambda_\perp^{t-\tau} \wsin_\tau \\
@@ -573,7 +573,7 @@ Consider the numerator
 &\leq \norm{\Lambda_\perp^t} \norm{\usin} + \sum_{\tau=1}^t \norm{\Lambda_\perp^{t-\tau}} \norm{\wsin_\tau} \\
 & = \lambda_{r+1}^t \norm{\usin} + \sum_{\tau=1}^t \lambda_{r+1}^{t - \tau} \norm{\wsin_\tau}
 \end{align*}
-Now, we use the following result (Theorem 4.4.5, HDP book)
+Now, we use the following result \cite[Theorem 4.4.5]{hdp_book} 
 \begin{theorem}
 Let $A$ be a $m \times n$ random matrix whose entries are independent zero-mean sub-Gaussian r.v.'s. Then for any $t >0$ we have 
 \begin{align*}
@@ -581,11 +581,13 @@ Let $A$ be a $m \times n$ random matrix whose entries are independent zero-mean 
 \end{align*}
 with probability at least $1 - 2 \exp(-t^2)$. Here, $K = max_{i,j} \|A_{i,j}\|_{\psi_2}$
 \end{theorem}
-Firstly, notice that for $\usin$, $K = 1$ and for $\ucos$, $K = \sigma_c$. Thus, 
+Firstly notice that $m \equiv n-r$ and $n \equiv r$. Also, for $\usin$, $K = 1$ and for $\wsin_t$, $K = \sigma_c$. Thus, 
 \begin{align*}
 \Pr\left(\|\usin\| \leq C (1 + \gamma_1)(\sqrt{n-r} + \sqrt{r})\right) \geq  1 - \exp(- \gamma_1^2 n) \\
-\Pr\left(\|\wcos_\tau\| \leq C \sigma_c (1 + \gamma_1)(\sqrt{n-r} + \sqrt{r}) \right) \geq  1 - \exp(- \gamma_1^2 n)
+\Pr\left(\|\wsin_\tau\| \leq C \sigma_c (1 + \gamma_1)(\sqrt{n-r} + \sqrt{r}) \right) \geq  1 - \exp(- \gamma_1^2 n)
 \end{align*}
+where we used $t = \gamma_1 (\sqrt{n-r} + \sqrt{r}) \implies \|A\| \leq CK (1+ \gamma_1) (\sqrt{n-r} + \sqrt{r}) \leq 2CK (1+ \gamma_1) \sqrt{n}$ 
+
 For simplicity (will work out the  details in some time) we will use a bound of $\sqrt{n}$ in the upper bound of the matrices. And thus, applying union bound, we notice that with probability at least $1 - (t + 1) \exp(- \gamma_1^2 n)$, 
 \begin{align*}
 \|\utsin_t\| \leq C (1+ \gamma_1) \sqrt{n} \left[\lambda_{r+1}^t +  \sigma_c (1 + \lambda_{r+1} + \cdots +  \lambda_{r+1}^{t-1}) \right]
@@ -602,20 +604,20 @@ where $(a)$ uses Weyl's inequality, $(b)$ follows because of Ostrowski's inequal
 \begin{align*}
 \sigma_{\min}^2(AB) = \lambda_{\min}(B'A'A B) \geq \lambda_{\min}(A'A) \lambda_{\min}(B'B) = \sigma_{\min}^2(A) \sigma_{\min}^2(B)
 \end{align*}
-We can apply Ostrowski because we have that $B$ is non-singular, and $A'A$ is Hermitian. We now bound the smallest singular value (these are matrices of dimension $r$, recall) using the following theorem
+We can apply Ostrowski because we have that $B$ is non-singular, and $A'A$ is Hermitian. We now bound the smallest singular value (these are matrices of dimension $r$, recall) using the following result \cite[Theorem 1.2]{smallest}
 \begin{theorem}
-Let $A$ be a $N \times n$ random matrix whose entries are independent zero-mean sub-Gaussian r.v.'s. Then for any $t >0$ we have 
+Let $A$ be a $n \times n$ random matrix whose entries are independent zero-mean sub-Gaussian r.v.'s. Then for any $t >0$ we have 
 \begin{align*}
-\sigma_{\min}(A) \geq t K (\sqrt{N} - \sqrt{n-1}) 
+\sigma_{\min}(A) \geq \frac{t K}{\sqrt n}
 \end{align*}
-with probability at least $1 -  \exp(-c N) - (ct)^{N-n+1}$. Here, $K = max_{i,j} \|A_{i,j}\|_{\psi_2}$. And also if $N - n = O(1)$, then essentially $\sqrt{N} - \sqrt{n-1} = O(1/\sqrt{N})$. 
+with probability at least $1 -  \exp(-c n) - (ct)$. Here, $K = max_{i,j} \|A_{i,j}\|_{\psi_2}$. 
 \end{theorem}
-We apply this result to $\utcos$ and $\wcos$. Again, we recall that for $\ucos$, $K = 1$ and for $\usin$, $K = \sigma_c$. Thus
+We apply this result to $\ucos$ and $\wcos$. Firstly notice that $n \equiv r$. Also, we recall that for $\ucos$, $K = 1$ and for $\wcos_t$, $K = \sigma_c$. Thus
 \begin{align*}
 \Pr\left(\sigma_{r}(\ucos) \geq C \gamma_0/\sqrt{r}\right) \geq  1 - \exp(-cr) - (c \gamma_0) \\
-\Pr\left(\sigma_{r}(\wcos) \geq C \gamma_0/\sqrt{r}\right) \geq  1 - \exp(-cr) - (c \gamma_0)
+\Pr\left(\sigma_{r}(\wcos_t) \geq C \gamma_0/\sqrt{r}\right) \geq  1 - \exp(-cr) - (c \gamma_0)
 \end{align*}
-And thus, with probability at least $1 - (t+1) (\exp(-cr) + (c\gamma_0))$, 
+where we set $t = \gamma_0$ and notice that the matrices are all $r$-dimensional. And thus, with probability at least $1 - (t+1) (\exp(-cr) + (c\gamma_0))$, 
 \begin{align*}
 \sigma_r(\utcos_t) \geq C \gamma_0/\sqrt{r} \left[ \lambda_r^t + \sigma_c (1 + \lambda_r + \cdots + \lambda_r^{t-1})\right]
 \end{align*}
@@ -623,27 +625,36 @@ Finally, we get that with high probability,
 and thus we have 
 \begin{align*}
 \SE(U_,U_t) &\leq \frac{\|\utsin_t\|_2}{\sigma_r(\utcos_t)} \leq \frac{C (1+ \gamma_1) \sqrt{n} \left[\lambda_{r+1}^t +  \sigma_c (1 + \lambda_{r+1} + \cdots +  \lambda_{r+1}^{t-1}) \right]}{C \gamma_0/\sqrt{r} \left[ \lambda_r^t + \sigma_c (1 + \lambda_r + \cdots + \lambda_r^{t-1})\right]} \\
-&\leq C_{\gamma,n} \frac{\lambda_{r+1}^t +  \sigma_c (1 + \lambda_{r+1} + \cdots +  \lambda_{r+1}^{t-1})}{\lambda_r^t + \sigma_c (1 + \lambda_r + \cdots + \lambda_r^{t-1})}\\
+&= \frac{C (1+ \gamma_1) \sqrt{nr}}{\gamma_0} \cdot \frac{\lambda_{r+1}^t +  \sigma_c (1 + \lambda_{r+1} + \cdots +  \lambda_{r+1}^{t-1})}{\lambda_r^t + \sigma_c (1 + \lambda_r + \cdots + \lambda_r^{t-1})} \\
+&:= C_{\gamma,n} \frac{\lambda_{r+1}^t +  \sigma_c (1 + \lambda_{r+1} + \cdots +  \lambda_{r+1}^{t-1})}{\lambda_r^t + \sigma_c (1 + \lambda_r + \cdots + \lambda_r^{t-1})}\\
 &\leq C_{\gamma,n} \frac{\left(\frac{\lambda_{r+1}}{\lambda_r}\right)^t +  \sigma_c \lambda_r^{-t} (1 + \lambda_{r+1} + \cdots +  \lambda_{r+1}^{t-1})}{1 + \sigma_c \lambda_r^{-t} (1 + \lambda_r + \cdots + \lambda_r^{t-1})} \\
 &\leq C_{\gamma,n} \left(\frac{\lambda_{r+1}}{\lambda_r}\right)^t + \frac{\sigma_c}{\lambda_r} t \frac{\max(1, \lambda_{r+1})^{t-1}}{\lambda_{r+1}^{t-1}}\\
-&\leq C_{\gamma,n} \left(\frac{\lambda_{r+1}}{\lambda_r}\right)^t + \frac{\sigma_c}{\lambda_r} t \frac{\max(1, \lambda_{r+1})^{t-1}}{\lambda_{r+1}^{t-1}}\\
+&\leq C_{\gamma,n} t \left( \frac{\max(1, \lambda_{r+1})}{\lambda_{r}}\right)^{t-1} \left[ \left(\frac{\max(1,\lambda_{r+1})}{\lambda_r}\right) + \frac{\sigma_c}{\lambda_r} \right] \\
+&\overset{(a)}{\leq} C_{\gamma,n} t \left( \frac{\lambda_{r+1}}{\lambda_{r}}\right)^{t-1} \left[ \left(\frac{\lambda_{r+1}}{\lambda_r}\right) + \frac{\sigma_c}{\lambda_r} \right]
 \end{align*}
-and we can simplify the expression as done in the rank-$1$ case. Finally, $ t = O(\log C_{\gamma,n})$ the depedence is not terrible.
+
+wherein, for simplicity, we assume in $(a)$ that $\lambda_{r+1} > 1$, then we have the following conclusion:
+
+\begin{theorem}[Main Result -- Isotropic Noise]
+Consider Algorithm \ref{algo:rankr}.
+Define $R_1 = \lambda_{r+1}/\lambda_r$ and $\nsrmax = \sigma_c/\lambda_r$. 
+Assume that the noise at each iteration is independent, and isotropic. Pick an $\epsilon > 0$. Also assume that $\lambda_r > \lambda_{r+1} \geq 1$.  Assume that the number of iterations, $t > t^* - 1$ with
+\begin{align*}
+t^* = C \frac{1}{\log(1/R_1)} \log   \left( \frac{C_{\gamma,n} t (R_1 + \nsrmax)}{\epsilon}\right) = C \frac{1}{\log(1/R_1)} \log   \left( \frac{\frac{(1+ \gamma_1)\sqrt{nr}}{\gamma_0} t (R_1 + \nsrmax)}{\epsilon}\right)
+\end{align*}
+ Then, with probability at least $1 - (t + 1) \exp(- \gamma_1^2 n) - (t+1) (\exp(-cr) + (c\gamma_0))$, the estimate satisfies
+ \begin{align*}
+ \SE(U_t, U) \leq \epsilon
+ \end{align*}
+\end{theorem}
+
+\color{black}
+\bibliographystyle{apalike}
+\bibliography{numerical_analysis}
+
 \clearpage
 \null
 \clearpage
-{\color{red} older one, keeping for future if required
-\begin{align*}
-C_\gamma \frac{\sum_{i\geq 2} \sigma_{t,i}^2}{\sigma_{t,1}^2}  & \leq C_\gamma \sum_{i = 2}^{i_\ind -1} \left( \frac{\lambda_i}{\lambda_1} \right)^{2t} \frac{1 + \sigma_c^2 \lambda_i^{-2t} (\lambda_i^{2t-2} + \lambda_i^{2t-4} + \cdots 1)}{1 + \nsrmax^2} +  C_\gamma  \left( \frac{1}{\lambda_1} \right)^{2t} \sum_{i \geq i_\ind}  \frac{\lambda_i^{2t} + \sigma_c^2 (\lambda_i^{2t-2} + \lambda_i^{2t-4} + \cdots + 1)}{1 + \nsrmax^2}  \\
-&\leq C_\gamma  \left( \frac{\lambda_2}{\lambda_1} \right)^{2t}  (1 + t\sigma_c^2) \sum_{i = 2}^{i_\ind -1}\nu_i^{2t}  +  C_\gamma  \left( \frac{1}{\lambda_1} \right)^{2t} \sum_{i \geq i_\ind}  \frac{\nu_i \lambda_2^{2t} + \sigma_c^2 (\lambda_2^{2t-2} \nu_i^{2t-2} + \lambda_2^{2t-4} \nu_i^{2t-4} + \cdots + 1)}{1 + \nsrmax^2} \\
-&\leq C_\gamma \nu  \left( \frac{\lambda_2}{\lambda_1} \right)^{2t}  \max(1, t\sigma_c^2) +  C_\gamma  \left( \frac{1}{\lambda_1} \right)^{2t} \max(\nu, n \sigma_c^2, \sigma_c^2 \nu t) 
-\end{align*}
-where $\nsrmax := \sigma_c/\lambda_1$ is the noise to signal ratio. And thus as long as 
-\begin{align*}
-t \geq \max \left\{C \frac{1}{\log(\lambda_1/\lambda_2)} \log   \left( \frac{C_{\gamma} \nu  \max(1, t \sigma_c^2)}{\epsilon}\right),  C \frac{1}{\log \lambda_1} \log   \left( \frac{C_{\gamma}  \max(\nu, n \sigma_c^2, \sigma_c^2 \nu t)}{\epsilon}\right) \right\}
-\end{align*}
-with probability at least $1 - \exp(- c \gamma_0^2) - \exp(-c \gamma_1^2)$, $\sin(u_t, u_1^*) \leq \epsilon$.
-}
 
 %\null \clearpage
 
@@ -729,9 +740,7 @@ Here we summarize the main results of some prominent papers in this area.
 \item extension to lrmc etc
 \end{enumerate}
 
-\color{black}
-\bibliographystyle{apalike}
-\bibliography{numerical_analysis}
+
 
 
 
@@ -966,3 +975,16 @@ as long as
 \begin{align*}
 t - \log t -1 \geq C \frac{1}{\log(\lambda_1/\lambda_2)} \cdot \left[ \log   \left( \frac{C_{\gamma} n}{\epsilon}\right) - \log   \left( \frac{C_\gamma}{\nsrmax^2 + R_2^2}\right) \right]
 \end{align*}
+
+{\color{red} older one, keeping for future if required
+\begin{align*}
+C_\gamma \frac{\sum_{i\geq 2} \sigma_{t,i}^2}{\sigma_{t,1}^2}  & \leq C_\gamma \sum_{i = 2}^{i_\ind -1} \left( \frac{\lambda_i}{\lambda_1} \right)^{2t} \frac{1 + \sigma_c^2 \lambda_i^{-2t} (\lambda_i^{2t-2} + \lambda_i^{2t-4} + \cdots 1)}{1 + \nsrmax^2} +  C_\gamma  \left( \frac{1}{\lambda_1} \right)^{2t} \sum_{i \geq i_\ind}  \frac{\lambda_i^{2t} + \sigma_c^2 (\lambda_i^{2t-2} + \lambda_i^{2t-4} + \cdots + 1)}{1 + \nsrmax^2}  \\
+&\leq C_\gamma  \left( \frac{\lambda_2}{\lambda_1} \right)^{2t}  (1 + t\sigma_c^2) \sum_{i = 2}^{i_\ind -1}\nu_i^{2t}  +  C_\gamma  \left( \frac{1}{\lambda_1} \right)^{2t} \sum_{i \geq i_\ind}  \frac{\nu_i \lambda_2^{2t} + \sigma_c^2 (\lambda_2^{2t-2} \nu_i^{2t-2} + \lambda_2^{2t-4} \nu_i^{2t-4} + \cdots + 1)}{1 + \nsrmax^2} \\
+&\leq C_\gamma \nu  \left( \frac{\lambda_2}{\lambda_1} \right)^{2t}  \max(1, t\sigma_c^2) +  C_\gamma  \left( \frac{1}{\lambda_1} \right)^{2t} \max(\nu, n \sigma_c^2, \sigma_c^2 \nu t) 
+\end{align*}
+where $\nsrmax := \sigma_c/\lambda_1$ is the noise to signal ratio. And thus as long as 
+\begin{align*}
+t \geq \max \left\{C \frac{1}{\log(\lambda_1/\lambda_2)} \log   \left( \frac{C_{\gamma} \nu  \max(1, t \sigma_c^2)}{\epsilon}\right),  C \frac{1}{\log \lambda_1} \log   \left( \frac{C_{\gamma}  \max(\nu, n \sigma_c^2, \sigma_c^2 \nu t)}{\epsilon}\right) \right\}
+\end{align*}
+with probability at least $1 - \exp(- c \gamma_0^2) - \exp(-c \gamma_1^2)$, $\sin(u_t, u_1^*) \leq \epsilon$.
+}
