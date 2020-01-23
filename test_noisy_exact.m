@@ -14,8 +14,8 @@ rng shuffle
 n = 100;
 r = 1;
 signal_energy = 1.5;
-noise_energy = 0.05;
-ch_noise_energy = 10;
+noise_energy = signal_energy - 1e-3;
+ch_noise_energy = 100;
 
 
 %% generate the "rectangular" data points, and also the sample covariance
@@ -36,7 +36,7 @@ title('singular values of original matrix')
 
 
 %% vanilla power method -- with normalization
-power_iter = 50;
+power_iter = 5000;
 u_vanilla_norm = randn(n, r);
 u_vanilla_norm = u_vanilla_norm / norm(u_vanilla_norm);
 conv_vanilla_norm = zeros(1, power_iter+1);
