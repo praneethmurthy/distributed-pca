@@ -58,27 +58,67 @@ In this document we study the problem of analyzing the ``noisy power method''. W
 However, due to various reasons, we cannot directly use the power method, and instead we can only use an approximation since we are able to only access noisy matrix-vector/matrix-matrix  products. We will use the following algorithm
 
 \section{Algorithm}
-In this document we assume that at each iteration, $t$, we only access the noisy versions of the matrix vector/matrix matrix products, i.e., we analyze the following algorithm
+In this document we assume that at each iteration, $t$, we only access the noisy versions of the matrix vector/matrix matrix products. Furthermore, inspired by the approach of \cite{noisy_pm}, we choose a target dimension $r' \geq r$. This has some benefits in terms of probability of success. (edit this ) , i.e., we analyze the following algorithm 
 
-\newcommand{\Y}{\bm{Y}}
-\newcommand{\z}{\bm{z}}
 \begin{algorithm}[H]
-\caption{Noisy power method -- rank 1}\label{algo:rank1}
+\caption{Noisy power method}\label{algo:rankr}
   \begin{algorithmic}[1]
     \REQUIRE $A$ 
-    \STATE $u_0 \sim \mathcal{N}(0, I_{n\times n})$ (Initialization) 
-    \STATE $u_0 = u_0/\|u_0\|_2$ (step is excluded currently in analysis)
+    \STATE $U_0 \overset{i.i.d.}{\sim} \mathcal{N}(0, I)_{n \times r'}$ %(Initialization)
+    \STATE $U_0 R_0 \overset{QR}{\leftarrow} U_0$(step {\em hurts} in practice)
     \FOR{$t=1,\dots, T$}
-    \STATE $w_t \sim \mathcal{N}(0, \sigma_c^2 I_{n\times n})$
-    \STATE $u_t = A u_{t-1} + w_t$ 
-    \STATE $u_t = u_t / \|u_t\|_2$ (step is excluded currently in analysis)
+    \STATE $W_t \overset{i.i.d.}{\sim} \mathcal{N}(0, \sigma_c^2 I)_{n \times r'}$ [This is probably not the algorithm]
+    \STATE $U_t = A U_{t-1} + W_t$ 
+    \STATE $U_t R_t \overset{QR}{\leftarrow} U_t$(step {\em hurts} in practice)
     \ENDFOR
-    \ENSURE $u_T$ 
+    \ENSURE $U_T$ 
   \end{algorithmic}
 \end{algorithm}
 
+
+\newcommand{\Y}{\bm{Y}}
+\newcommand{\z}{\bm{z}}
+%\begin{algorithm}[H]
+%\caption{Noisy power method ($r=1$) \hspace{2cm} }\label{algo:rank1}
+%  \begin{algorithmic}[1]
+%    \REQUIRE $A$ 
+%    \STATE $u_0 \sim \mathcal{N}(0, I_{n\times n})$ (Initialization) 
+%    \STATE $u_0 = u_0/\|u_0\|_2$ (step is excluded currently in analysis)
+%    \FOR{$t=1,\dots, T$}
+%    \STATE $w_t \sim \mathcal{N}(0, \sigma_c^2 I_{n\times n})$
+%    \STATE $u_t = A u_{t-1} + w_t$ 
+%    \STATE $u_t = u_t / \|u_t\|_2$ (step is excluded currently in analysis)
+%    \ENDFOR
+%    \ENSURE $u_T$ 
+%  \end{algorithmic}
+%\end{algorithm}
+%
+%\begin{algorithm}[H]
+%\caption{Block-Stochastic Power Method \hspace{2.2cm} Block-Stochastic Orthogonal Iteration}\label{algo:rank1}
+%  \begin{algorithmic}[1]
+%    \REQUIRE $\{\by_1, \dots, \by_m\}$, Block size: $B$ 
+%    \STATE $\bq_0\sim \mathcal{N}(0, I_{p\times p})$ (Initialization) \hspace{4cm} $H^i \sim \mathcal{N}(0, I_{p\times p}), 1\leq i\leq k$ (Initialization)\label{stp:init1}
+%    \STATE $\bq_0 \leftarrow \bq_0/\|\bq_0\|_2$ \hspace{6.5cm} $H \leftarrow Q_0 R_0$ (QR-decomposition)
+%    \FOR{$\tau=0,\dots, n/B-1$}
+%    \STATE $\bs_{\tau+1}\leftarrow 0$ \hspace{7cm} $S_{\tau+1}\leftarrow 0$
+%    \FOR{$t= B\tau+1, \dots, B (\tau+1)$}
+%      \STATE $\bs_{\tau+1} \leftarrow \bs_{\tau+1}+\frac{1}{B} {\bq_\tau^{\top}}{\by_t}\by_t$ \hspace{4.2cm} $S_{\tau+1} \leftarrow S_{\tau+1}+\frac{1}{B}\by_t \by_t^{\top}Q_\tau$
+%    \ENDFOR
+%    \STATE $\bq_{\tau+1}\leftarrow \bs_{\tau+1}/\|\bs_{\tau+1}\|_2$ \hspace{5cm}  $S_{\tau+1}=Q_{\tau+1}R_{\tau+1}$ (QR-decomposition)
+%    \ENDFOR
+%    \ENSURE $\bq_T$ 
+%  \end{algorithmic}
+%\end{algorithm}
+
 \newcommand{\E}{\mathbb{E}}
-\section{High probability bounds on $\sin\theta$ for rank $1$ setting}
+\section{Rank-$1$ case}
+
+{\color{red} 
+To Do:
+
+1. Can we simplify some of these things by considering a vector concentration instead of scalar concentrations? There is currently a discrepancy w.r.t to (a) bounding the tail; (b) $\nsrmax$ containing squares in the rank-$1$ case;
+
+}
 
 We assume that the channel noise, $w_t$ at each iteration is identically distributed, and is independent of $A$ (if this is random), $u_0$ and all the previous $w_{1:t-1}$. Notice that we can write the iterates as follows
 \begin{gather*}
@@ -119,7 +159,6 @@ we will now derive high probability bounds on $\delta_{t,1}$, $\|u_t\|$. Firstly
 \begin{align*}
 \E[\delta_{t,i}^2] = \E[(\alpha_i \lambda_i^t + \sum_{\tau=1}^t \beta_{\tau,i} \lambda_i^{t-\tau})^2] = \lambda_i^{2t} + \sigma_c^2 \sum_{\tau=1}^t \lambda_i^{2(t-\tau)} = \lambda_i^{2t} + \sigma_c^2 \frac{\lambda_i^{2t}-1}{\lambda_i^2-1} := \sigma_{t,i}^2
 \end{align*}
-{\color{blue} \noindent ??current writing can be simplified by using $\sin \theta \leq \tan \theta $ -- mostly done}
 %\noindent For purpose of analysis, we will consider the case of $i=1$ and $i > 1$ separately. In particular, since $\delta_{t,1}/\sigma_{t,1} \sim \mathcal{N}(0,1)$, from standard Gaussian tail bound it follows that
 %\begin{align*}
 %\Pr(
@@ -299,30 +338,8 @@ with probability at least $1 - \exp(- c \gamma_0^2) - \exp(-c \gamma_1^2)$, $\si
 
 
 
-{\color{teal} 
-\subsection{A possible explanation for discrepancy}\label{sec:expl}
-This may seem counter intuitive, but the reason is that at any given iteration, we only have access to noisy matrix vector products. The intuitive reasoning is as follows: at iteration $t-1$, the component of the algorithm estimate along the first eigenvector is $O( \lambda_1^{t-1} + \sigma_c^2 \lambda_1^{t-2})$ and the component along the second eigenvector is $O( \lambda_2^{t-1} + \sigma_c^2 \lambda_2^{t-2})$. When $\lambda_2 \geq 1$ obviously the first term dominates, and we are able to retain the convergence rate of $\lambda_2/\lambda_1$, but when $\lambda_2 <1$, without any extra information on $\sigma_c$ (which we do not place) it is likely that the second term dominates; tracing this recursion all the way back to the first estimate in fact we conclude that when $\lambda_2 < 1$, the component along the second direction is $O(\sigma_c^2)$! 
-
-Another possible way to interpret this would be considering the small noise v.s. large noise sort of regime that is standard in statistical literature. What we are saying is that in fact, we can recover the true eigenvector even in presence of extremely large noise, but just that the convergence is slower. This is most likely due to the fact that the noise is isotropic, but still. 
-
-We provide a quick numerical expriment to verify our claims in Fig. \ref{fig:chk_r1}, \ref{fig:chk_r2}
-
-\begin{minipage}[t]{.5\linewidth}
-\centering
-\includegraphics[scale=.6]{figures/l1_1_5_l2_1_051_sig_10.eps}
-\captionof{figure}{$\lambda_1 = 2.25$, $\lambda_2 = 1.1025$, $\sigma_c = 10$}
-\label{fig:chk_r1}
-\end{minipage}%
-\begin{minipage}[t]{.5\linewidth}
-\centering
-\includegraphics[scale=.6]{figures/l1_1_5_l2_0_051_sig_10.eps}
-\captionof{figure}{$\lambda_1 = 2.25$, $\lambda_2 = 0.0025$, $\sigma_c = 10$. Even though $\lambda_2/\lambda_1$ is smaller than the previous case, the convergence is slower. Everything else is the same.}
-\label{fig:chk_r2}
-\end{minipage}
-}
 
 
-{\noindent \color{blue} not sure what is the best way to simplify -- $log t$ is technically not a problem, but is it possible to eliminate this dependence? -- seems like it is not possible without additional information on $\lambda_i$'s, but try more!}
 
 
  %Now, suppose that for $i \geq 2$, $\lambda_i \leq \nu_i \lambda_2$ for some $\nu_i \leq 1$ (this is not really an assumption, it holds trivially for $\nu_i = 1$). Said another way, we can bound the tail as follows
@@ -369,7 +386,7 @@ We provide a quick numerical expriment to verify our claims in Fig. \ref{fig:chk
 
 
 
-\section{Rank-$1$, i.i.d. over time, Anisotropic covariance}
+\subsection{i.i.d. over time, Anisotropic covariance}
 Now we assume that the channel noise, $w_t$ at each iteration is independent but is not isotropic. Concretely, we assume that for all $t$, $\E[w_t w_t{}'] = \Sigma_w$, and is independent of $A$ (if this is random), $u_0$ and all the previous $w_{1:t-1}$. As done in the isotropic setting, we can write the iterates as follows
 \begin{align*}
 u_t = A^t u_0 + \sum_{\tau = 1}^t A^{t-\tau} w_\tau
@@ -441,6 +458,14 @@ t - 1 \geq \max \left\{C \frac{1}{\log(\lambda_1/\lambda_2)} \log   \left( \frac
 \end{align*}
 with probability at least $1 - \exp(- c \gamma_0^2) - \exp(-c \gamma_1^2)$, $\sin(u_t, u_1^*) \leq \epsilon$.
 
+{\color{teal} 
+\subsection{A possible explanation for discrepancy}\label{sec:expl}
+This may seem counter intuitive, but the reason is that at any given iteration, we only have access to noisy matrix vector products. The intuitive reasoning is as follows: at iteration $t-1$, the component of the algorithm estimate along the first eigenvector is $O( \lambda_1^{t-1} + \sigma_c^2 \lambda_1^{t-2})$ and the component along the second eigenvector is $O( \lambda_2^{t-1} + \sigma_c^2 \lambda_2^{t-2})$. When $\lambda_2 \geq 1$ obviously the first term dominates, and we are able to retain the convergence rate of $\lambda_2/\lambda_1$, but when $\lambda_2 <1$, without any extra information on $\sigma_c$ (which we do not place) it is likely that the second term dominates; tracing this recursion all the way back to the first estimate in fact we conclude that when $\lambda_2 < 1$, the component along the second direction is $O(\sigma_c^2)$! 
+
+Another possible way to interpret this would be considering the small noise v.s. large noise sort of regime that is standard in statistical literature. What we are saying is that in fact, we can recover the true eigenvector even in presence of extremely large noise, but just that the convergence is slower. This is most likely due to the fact that the noise is isotropic, but still. 
+We provide a quick numerical expriment to verify our claims in Fig. \ref{fig:chk_r1}, \ref{fig:chk_r2}
+}
+
 %\subsection{Eigenvalues $\lambda_i < 1$}
 %
 %When $\lambda_i < 1$, we have a similar approach as done in the $2$ non-zero eigenvalue case. In particular, 
@@ -472,8 +497,8 @@ with probability at least $1 - \exp(- c \gamma_0^2) - \exp(-c \gamma_1^2)$, $\si
 %with probability at least $1 - \exp(- c \gamma_0^2) - \exp(-c \gamma_1^2)$, $\sin(u_t, u_1^*) \leq \epsilon$.
 
 
-\section{High-Probability bounds for the general rank $r$ setting}
-Now, we consider the case where we are interested in finding the top-$r$ eigenvectors of $A$. We still assume the same setting, i.e., $A = U^* \Lambda^* (U^*)^T$ and we want to compute $\hat{U}_t \in \R^{n \times r}$ that is a good estimate of $U = [u_1^*, \cdots, u_r^*]$. To simplify some notation, we will often use the following e.v.d. 
+\section{General rank-$r$ case}
+Now, we consider the case where we are interested in finding the top-$r$ eigenvectors of $A$. We still assume the same setting, i.e., $A = U^* \Lambda^* (U^*)^T$ and we want to compute $\hat{U}_t \in \R^{n \times r}$ that is a good estimate of $U = [u_1^*, \cdots, u_r^*]$. To simplify some notation, we will often use the following eigenvalue decomposition for $A$
 \begin{align*}
 A = 
 \begin{bmatrix}
@@ -487,23 +512,7 @@ U \\ U_{\perp}
 U \\ U_{\perp}
 \end{bmatrix}^T
 \end{align*}
- The algorithm for this is a slight modification of the rank-$1$ case, but we provide it here for simplicity. The main difference is that the normalization (which is not performed) is replaced with a reduced QR decomposition. 
-
-\begin{algorithm}[H]
-\caption{Noisy power method -- rank $r$}\label{algo:rankr}
-  \begin{algorithmic}[1]
-    \REQUIRE $A$ 
-    \STATE $U_0 \overset{i.i.d.}{\sim} \mathcal{N}(0, I_{n \times r})$ %(Initialization)
-    \STATE $U_0 R_0 \overset{QR}{\leftarrow} U_0$(step is excluded currently in analysis)
-    \FOR{$t=1,\dots, T$}
-    \STATE $W_t \overset{i.i.d.}{\sim} \mathcal{N}(0, \sigma_c^2 I_{n \times r})$
-    \STATE $U_t = A U_{t-1} + W_t$ 
-    \STATE $U_t R_t \overset{QR}{\leftarrow} U_t$(step is excluded currently in analysis)
-    \ENDFOR
-    \ENSURE $U_T$ 
-  \end{algorithmic}
-\end{algorithm}
-
+ 
 
 \newcommand{\ucos}{\bm{\alpha}}
 \newcommand{\usin}{\bm{\alpha}_{\perp}}
@@ -536,7 +545,7 @@ U_t &= A^t (U \ucos + U_{\perp} \usin) + \sum_{\tau = 1}^t A^{t-\tau} (U \wcos_\
 &:= U \utcos_t + U_\perp \utsin_t
 \end{align*}
 
-Furthermore, notice that $\ucos = U^T U_0 \overset{i.i.d.}{\sim} \mathcal{N}(0, I_{r \times r})$, $\usin = U_\perp^T U_0 \overset{i.i.d.}{\sim} \mathcal{N}(0, I_{n- r \times r})$, $\wcos_t = U^T W_t \overset{i.i.d.}{\sim} \mathcal{N}(0, \sigma_c^2 I_{r \times r})$, $\wsin_t = U_\perp^T W_t \overset{i.i.d.}{\sim} \mathcal{N}(0, \sigma_c^2 I_{n- r \times r})$ and they are all independent random matrices. 
+Furthermore, notice that $\ucos = U^T U_0 \overset{i.i.d.}{\sim} \mathcal{N}(0, 1)_{r \times r'}$, $\usin = U_\perp^T U_0 \overset{i.i.d.}{\sim} \mathcal{N}(0, 1)_{n- r \times r'}$, $\wcos_t = U^T W_t \overset{i.i.d.}{\sim} \mathcal{N}(0, \sigma_c^2 )_{r \times r'}$, $\wsin_t = U_\perp^T W_t \overset{i.i.d.}{\sim} \mathcal{N}(0, \sigma_c^2)_{n- r \times r'}$ and they are all independent random matrices. 
 %We can write the expression for $u_t$ as follows
 %\begin{align*}
 %u_t &= A^t u_0 + \sum_{\tau=1}^t A^{t - \tau} w_\tau \\
@@ -548,94 +557,220 @@ Furthermore, notice that $\ucos = U^T U_0 \overset{i.i.d.}{\sim} \mathcal{N}(0, 
 %&:= \sum_{i=1}^n \delta_{t,i}  u_i^*
 %\end{align*}
 
-For computing the subspace error in the rank $r$ case we need to first construct a basis matrix for $U_t$ and we do through the reduced QR decomposition. Let $U_t \overset{QR}{=} Q_t R_t$ where $Q_t \in \R^{n \times r}$ is a basis matrix, and $R_t \in \R^{r \times r}$ is an upper triangular matrix with the property that $\sigma_i(R_t) = \sigma_i(U_t)$ for all $ i \in [r]$. Recall that $\utsin_t \in \R^{n -r \times r}$ and $\utcos_t \in \R^{r \times r}$. 
+The goal is provide an anlysis that provably computes a good estimate of the true data subspace, $U$. We will use the Subspace Error metric to quantify closeness, and it is defined for two matrices $U, \hat U$ as $\SE(U, \hat U) = \|(I - U U^T)\hat U\|$. Notice that since the subspace error is not symmetric in its arguments. In particular, since $r' \geq r$, we have that 
 \begin{align*}
-\SE(U, U_t) = \|U_\perp U_\perp^T Q_t\| = \|U_\perp U_\perp^T U_t R_t^{-1}\|  = \|U_\perp \utsin_t R_t^{-1}\| = \|\utsin_t R_t^{-1}\| \leq \frac{\|\utsin\|}{\sigma_{r}(R_t)}
+\SE(U_t, U) = \|(I  - U_t U_t^T) U\| \leq \|(I - U U^T) = \SE(U, U_t)
+\end{align*}
+
+To obtain an expression for the subspace error, let $U_t \overset{QR}{=} Q_t R_t$ where $Q_t \in \R^{n \times r'}$ is a basis matrix, and $R_t \in \R^{r \times r'}$ is an upper triangular matrix with the property that $\sigma_i(R_t) = \sigma_i(U_t)$ for all $ i \in [r']$. Recall that $\utsin_t \in \R^{n -r \times r'}$, $\utcos_t \in \R^{r \times r'}$ and $r' \geq r$. 
+\begin{align*}
+\SE(U, U_t) = \|U_\perp U_\perp^T Q_t\| = \|U_\perp U_\perp^T U_t R_t^{-1}\|  = \|U_\perp \utsin_t R_t^{-1}\| = \|\utsin_t R_t^{-1}\| \leq \frac{\|\utsin\|}{\sigma_{r'}(R_t)}
 \end{align*}
 Also,
-\begin{align*}
-\sigma_r^2(R_t) = \sigma_{r}^2(U_t) = \lambda_{\min}(U_t^T U_t) = \lambda_{\min}(\utcos_t^T \utcos_t + \utsin_t^T \utsin_t) \geq \lambda_{\min}(\utcos_t^T \utcos_t) + \lambda_{\min}(\utsin_t^T \utsin_t) \geq \lambda_{\min}(\utcos_t^T \utcos_t) = \sigma_r^2(\utcos_t)
-\end{align*}
-and thus we have 
-\begin{align*}
-\SE^2(U_,U_t) \leq \frac{\|\utsin_t\|_2^2}{\sigma_r^2(\utcos_t)}
-\end{align*}
+\begin{align}\label{eq:se_r}
+\sigma_{r'}^2(R_t) = \sigma_{r'}^2(U_t) = \lambda_{\min}(U_t^T U_t) = \lambda_{\min}(\utcos_t^T \utcos_t + \utsin_t^T \utsin_t) \overset{(a)}{\geq} \lambda_{\min}(\utcos_t^T \utcos_t) + \lambda_{\min}(\utsin_t^T \utsin_t) \overset{(b)}{\geq} \lambda_{\min}(\utcos_t^T \utcos_t) = \sigma_{r'}^2(\utcos_t)
+\end{align}
+where $(a)$ follows from Weyl's Inequality (\cite[Theorem 4.3.1]{horn_johnson}), and $(b)$ follows since the matrices are positive semi-definite. Thus we have 
+%\begin{align}\label{eq:se_r}
+%\SE^2(U_,U_t) \leq \frac{\|\utsin_t\|_2^2}{\sigma_r^2(\utcos_t)}
+%\end{align}
 
-{\color{teal} 
-The intuition about why this works is that the denominator scales as (roughly) $\lambda_{r+1}^{2t}$ and the numerator scales as $\lambda_{r}^{2t}$. 
-}
 
-\subsection{Appropriate Concentrations}
+%\subsection{Appropriate Concentrations}
+%
+%{\color{blue} First we provide a naive analysis -- only union bound.  }
 
-{\color{blue} First we provide a naive analysis -- only union bound.  }
-
-Consider the numerator 
+\noindent Now we provide high probability bounds on the numerator and denominator terms of \eqref{eq:se_r}. First consider the numerator 
 \begin{align*}
 \|\utsin_t\| &= \norm{\Lambda_\perp^t \usin + \sum_{\tau=1}^t \Lambda_\perp^{t-\tau} \wsin_\tau} \\
-&\leq \norm{\Lambda_\perp^t} \norm{\usin} + \sum_{\tau=1}^t \norm{\Lambda_\perp^{t-\tau}} \norm{\wsin_\tau} \\
-& = \lambda_{r+1}^t \norm{\usin} + \sum_{\tau=1}^t \lambda_{r+1}^{t - \tau} \norm{\wsin_\tau}
+&\leq \norm{\Lambda_\perp^t} \norm{\usin} + \norm{\sum_{\tau=1}^t \Lambda_\perp^{t-\tau} \wsin_\tau} 
+%& = \lambda_{r+1}^t \norm{\usin} + \sum_{\tau=1}^t \lambda_{r+1}^{t - \tau} \norm{\wsin_\tau}
 \end{align*}
+
+
 Now, we use the following result \cite[Theorem 4.4.5]{hdp_book} 
 \begin{theorem}[Upper Bounding Spectral Norm] \label{thm:upper_bnd}
-Let $A$ be a $m \times n$ random matrix whose entries are independent zero-mean sub-Gaussian r.v.'s. Then for any $t >0$ we have 
+Let $A$ be a $m \times n$ random matrix whose entries are independent zero-mean sub-Gaussian r.v.'s and let $K = max_{i,j} \|A_{i,j}\|_{\psi_2}$. Then for any $\epsilon >0$ with probability at least $1 - 2\exp(-\epsilon^2)$,
 \begin{align*}
-\|A\| \leq C K (\sqrt{m} + \sqrt{n} + t) 
+\|A\| \leq C K (\sqrt{m} + \sqrt{n} + \epsilon) 
 \end{align*}
-with probability at least $1 - 2 \exp(-t^2)$. Here, $K = max_{i,j} \|A_{i,j}\|_{\psi_2}$
 \end{theorem}
-Firstly notice that $m \equiv n-r$ and $n \equiv r$. Also, for $\usin$, $K = 1$ and for $\wsin_t$, $K = \sigma_c$. Thus, 
-\begin{align*}
-\Pr\left(\|\usin\| \leq C (1 + \gamma_1)(\sqrt{n-r} + \sqrt{r})\right) \geq  1 - \exp(- \gamma_1^2 n) \\
-\Pr\left(\|\wsin_\tau\| \leq C \sigma_c (1 + \gamma_1)(\sqrt{n-r} + \sqrt{r}) \right) \geq  1 - \exp(- \gamma_1^2 n)
-\end{align*}
-where we used $t = \gamma_1 (\sqrt{n-r} + \sqrt{r}) \implies \|A\| \leq CK (1+ \gamma_1) (\sqrt{n-r} + \sqrt{r}) \leq 2CK (1+ \gamma_1) \sqrt{n}$. Will also need to assume that $r < cn$ for the failure probability to be $\exp(-\gamma_1^2 n)$.
 
-For simplicity (will work out the  details in some time) we will use a bound of $\sqrt{n}$ in the upper bound of the matrices. And thus, applying union bound, we notice that with probability at least $1 - (t + 1) \exp(- \gamma_1^2 n)$, 
+Define the matrix $M = \sum_{\tau=1}^t \Lambda_\perp^{t-\tau}  \wsin_t$ and we apply Theorem \ref{thm:upper_bnd} to $M$. We can apply this theorem because we know that each entry of $\wsin_t$ is independent and thus each entry of $M$ is a weighted sum of $t$ indepdendent Gaussian r.v.'s. In other words
+\begin{gather*}
+M_{ij} = \sum_{\tau=1}^t (\lambda_\perp)_i^{t-\tau} (\wsin_{\tau})_{ij} \\
+\implies M_{i,j} \sim \mathcal{N}\left(0, \sigma_c^2 \sum_{\tau=1}^t (\lambda_\perp)_i^{2(t-\tau)}\right)
+\implies \max_{ij} \|(M)_{ij}\|_{\psi_2} = \sigma_c \sqrt{\sum_{\tau=1}^t \lambda_{r+1}^{2(t-\tau)}} \leq \sigma_c t \max(1, \lambda_{r+1})^{t-1} := \sigma_c t \nu_{r+1}^{t-1} 
+\end{gather*}
+
+Now, we have $m \equiv n-r$ and $n \equiv r'$. Also, for $\usin$, $K = 1$ and for $M = \sum_{\tau} \Lambda_\perp^{t-\tau}\wsin_\tau$, $K = \sigma_c t \nu_{r+1}^{t-1}$. We set $\epsilon = \gamma_1 (\sqrt{n-r} + \sqrt{r'})$ for some $\gamma_1 > 0$. Thus, 
+\begin{gather*}
+\Pr\left(\|\usin\| \leq C (1 + \gamma_1)(\sqrt{n-r} + \sqrt{r'})\right) \geq  1 - \exp(- \gamma_1^2 n) \\
+\Pr\left(\norm{\sum_{\tau=1}^t \Lambda_\perp^{t-\tau} \wsin_\tau} \leq C \sigma_c t \nu_{r+1}^{t-1} (1 + \gamma_1)(\sqrt{n-r} + \sqrt{r'}) \right) \geq  1 - \exp(- c\gamma_1^2 n)
+\end{gather*}
+
+%Furthermore for both matrices, $\|A\| \leq CK (1+ \gamma_1) (\sqrt{n-r} + \sqrt{r'}) \leq 2CK (1+ \gamma_1) \sqrt{n}$. 
+%
+The expression for the failure probability follows from using $r \ll n$. And thus, we notice that with probability at least $1 - 4 \exp(- c\gamma_1^2 n)$, 
 \begin{align*}
-\|\utsin_t\| \leq C (1+ \gamma_1) \sqrt{n} \left[\lambda_{r+1}^t +  \sigma_c (1 + \lambda_{r+1} + \cdots +  \lambda_{r+1}^{t-1}) \right]
+\|\utsin_t\| &\leq \lambda_{r+1}^t \|\usin\| + \norm{\sum_{\tau=1}^t \Lambda_\perp^{t-\tau} \wsin_\tau} \\
+&\leq C(1+\gamma_1) \lambda_{r+1}^t(\sqrt{n-r} + \sqrt{r'}) + C \sigma_c t \nu_{r+1}^{t-1} (1 + \gamma_1)(\sqrt{n-r} + \sqrt{r'}) \\
+&\leq C (1 + \gamma_1) (\sqrt{n-r} + \sqrt{r'}) \left[ \nu_{r+1}^t + \sigma_c t \nu_{r+1}^{t-1} \right] \\
+&\leq C (1+ \gamma_1) \sqrt{n} \left[\nu_{r+1}^t +  \sigma_c t \nu_{r+1}^{t-1}  \right] \\
+&\leq C (1+ \gamma_1) \sqrt{n} \nu_{r+1}^{t-1} t (\nu_{r+1} + \sigma_c) 
 \end{align*}
 
+%Firstly notice that $m \equiv n-r$ and $n \equiv r$. Also, for $\usin$, $K = 1$ and for $\wsin_t$, $K = \sigma_c$. Thus, 
+%\begin{align*}
+%\Pr\left(\|\usin\| \leq C (1 + \gamma_1)(\sqrt{n-r} + \sqrt{r})\right) \geq  1 - \exp(- \gamma_1^2 n) \\
+%\Pr\left(\norm{\sum_{\tau=1}^t \Lambda_\perp^{t-\tau} \wsin_\tau} \leq C \sigma_c (1 + \gamma_1)(\sqrt{n-r} + \sqrt{r}) \right) \geq  1 - \exp(- \gamma_1^2 n)
+%\end{align*}
+%where we used $t = \gamma_1 (\sqrt{n-r} + \sqrt{r}) \implies \|A\| \leq CK (1+ \gamma_1) (\sqrt{n-r} + \sqrt{r}) \leq 2CK (1+ \gamma_1) \sqrt{n}$. Will also need to assume that $r < cn$ for the failure probability to be $\exp(-\gamma_1^2 n)$.
+
+%For simplicity (will work out the  details in some time) we will use a bound of $\sqrt{n}$ in the upper bound of the matrices. And thus, applying union bound, we notice that with probability at least $1 - (t + 1) \exp(- \gamma_1^2 n)$, 
+%\begin{align*}
+%\|\utsin_t\| \leq C (1+ \gamma_1) \sqrt{n} \left[\lambda_{r+1}^t +  \sigma_c (1 + \lambda_{r+1} + \cdots +  \lambda_{r+1}^{t-1}) \right]
+%\end{align*}
+{\color{red}
 Now consider the denominator
 \begin{align*}
 \sigma_r(\utcos_t) &= \sigma_r\left(\Lambda^t \ucos + \sum_{\tau=1}^t \Lambda^{t-\tau} \wcos_\tau\right) \\
-&\overset{a}{\geq}  \sigma_r\left(\Lambda^t \ucos\right) + \sum_{\tau=1}^t \sigma_r\left(\Lambda^{t-\tau} \wcos_\tau\right) \\
-&\overset{b}{\geq}  \sigma_r\left(\Lambda^t \right) \sigma_r \left( \ucos\right) + \sum_{\tau=1}^t \sigma_r\left(\Lambda^{t-\tau}\right) \sigma_r\left(\wcos_\tau\right) \\
-&= \lambda_r^t \sigma_r\left( \ucos\right) + \sum_{\tau=1}^t \lambda_{r}^{t-\tau} \sigma_r\left(\wcos_\tau\right) 
+&\overset{(a)}{\geq}  \sigma_r\left(\Lambda^t \ucos\right) + \sum_{\tau=1}^t \sigma_r\left(\Lambda^{t-\tau} \wcos_\tau\right) \\
+&\overset{(b)}{\geq}  \sigma_r\left(\Lambda^t \right) \sigma_r \left( \ucos\right) + \sigma_r\left( \sum_{\tau=1}^t \Lambda^{t-\tau} \wcos_\tau\right)
 \end{align*}
 where $(a)$ uses Weyl's inequality, $(b)$ follows because of Ostrowski's inequality as follows: 
 \begin{align*}
 \sigma_{\min}^2(AB) = \lambda_{\min}(B'A'A B) \geq \lambda_{\min}(A'A) \lambda_{\min}(B'B) = \sigma_{\min}^2(A) \sigma_{\min}^2(B)
 \end{align*}
-We can apply Ostrowski because we have that $B$ is non-singular, and $A'A$ is Hermitian. We now bound the smallest singular value (these are matrices of dimension $r$, recall) using the following result \cite[Theorem 1.2]{smallest}
-\begin{theorem}[Lowest Bounding Smallest Singular Value] \label{thm:lower_bnd_square}
-Let $A$ be a $n \times n$ random matrix whose entries are independent zero-mean sub-Gaussian r.v.'s. Then for any $t >0$ we have 
+We can apply Ostrowski because we have that $B$ is non-singular, and $A'A$ is Hermitian. 
+}
+
 \begin{align*}
-\sigma_{\min}(A) \geq \frac{t K}{\sqrt n}
+\sigma_r(\utcos_t) &= \sigma_r\left(\Lambda^t \ucos + \sum_{\tau=1}^t \Lambda^{t-\tau} \wcos_\tau\right) := \sigma_r\left(M_1 + M_2\right) \\
+\sigma_r^2 (\utcos_t)&= \lambda_{\min}(M_1 + M_2)(M_1 + M_2)^T) = \lambda_{\min}(M_1 M_1^T + M_2 M_2^T + M_1 M_2^2 + M_2 M_1^T) \\
+&\geq \lambda_{\min}(M_1 M_1^T)  + \lambda_{\min}(M_2 M_2^T) + \lambda_{\min}(M_1 M_2^2 + M_2 M_1^T) \\
+& = \sigma_r^2\left( \Lambda^t \ucos \right) + \sigma_r^2\left( \sum_{\tau=1}^t \Lambda^{t-\tau} \wcos_\tau \right) + \lambda_{\min} \left( \Lambda^t \ucos \sum_{\tau=1}^t \wcos_\tau^T \Lambda^{t-\tau} + \sum_{\tau=1}^t \Lambda^{t-\tau} \wcos_\tau \ucos^T \Lambda^t \right) \\
+& \geq \sigma_r^2\left( \Lambda^t \ucos \right) + \sigma_r^2\left( \sum_{\tau=1}^t \Lambda^{t-\tau} \wcos_\tau \right) - 2 \norm{\Lambda^t \ucos}\norm{\sum_{\tau=1}^t \Lambda^{t-\tau} \wcos_\tau} 
 \end{align*}
-with probability at least $1 -  \exp(-c n) - (ct)$. Here, $K = max_{i,j} \|A_{i,j}\|_{\psi_2}$. 
-\end{theorem}
-We apply this result to $\ucos$ and $\wcos$. Firstly notice that $n \equiv r$. Also, we recall that for $\ucos$, $K = 1$ and for $\wcos_t$, $K = \sigma_c$. Thus
+The problem with using this approach is that we will get the denominator bound as follows: With high probability, we have
 \begin{align*}
-\Pr\left(\sigma_{r}(\ucos) \geq C \gamma_0/\sqrt{r}\right) \geq  1 - \exp(-cr) - (c \gamma_0) \\
-\Pr\left(\sigma_{r}(\wcos_t) \geq C \gamma_0/\sqrt{r}\right) \geq  1 - \exp(-cr) - (c \gamma_0)
+\sigma_r^2(\utcos_t) \geq \lambda_r^{2t} \gamma_0^2 (\sqrt{r'} - \sqrt{r-1})^2 + \gamma_0^2 C_{K_1} (\sqrt{r'} - \sqrt{r-1})^2 - 2  (1+\gamma_1)^2 \lambda_1^{2t} (\sqrt{r'} + \sqrt{r})^2
 \end{align*}
-where we set $t = \gamma_0$ and notice that the matrices are all $r$-dimensional. And thus, with probability at least $1 - (t+1) (\exp(-cr) + (c\gamma_0))$, 
+the last two terms use Theorem \ref{thm:upper_bnd} on the $r \times r'$ matrices with $K_1 = c \lambda_1^t$. The issue with this is that we will need to choose $\gamma_1 \sim (\lambda_r/\lambda_1)^{2t}$ which is problematic and we will end up getting a probability bound of $\exp(-r R^{2t})$.
+
+%where $(a)$ uses Weyl's inequality, $(b)$ follows because of Ostrowski's inequality as follows: 
+%\begin{align*}
+%\sigma_{\min}^2(AB) = \lambda_{\min}(B'A'A B) \geq \lambda_{\min}(A'A) \lambda_{\min}(B'B) = \sigma_{\min}^2(A) \sigma_{\min}^2(B)
+%\end{align*}
+%We can apply Ostrowski because we have that $B$ is non-singular, and $A'A$ is Hermitian. 
+
+{\color{blue} 
+In a naive way, we can always directly obtain bounds on the second term above. The only ``issue'' is that $C_K = \sigma_c t \lambda_1^t$. This is technically not a problem since the dependence of $t$ on $C_k$ is just logarithmic but still it may raise the question that there is an exponential dependence on $\lambda_1$!. However, I strongly belive that we can do better using the approach below. The proof is not completely correct but I really think I can fix it. 
+
+}
+{\color{red} We will also use the following simple lemma
+%\begin{lem}
+%Assume that $\lambda_1 \geq \lambda_2 \cdots \lambda_r > 1$ and $\Lambda = \mathrm{diag}(\lambda_1, \cdots, \lambda_r)$. For some matrices $\beta_\tau$ we have
+%\begin{align*}
+%\sigma_r\left( \sum_{\tau=1}^t \Lambda^{t-\tau} \beta_{\tau} \right) \geq \
+%\end{align*}
+%\end{lem} 
+ this is one way to proceed, but I have done something wrong, need to fix. I think this can be done, just need to choose the right indices
+\begin{lem}[Bounds on singular values of weighted sums]
+Assume that $A_1 \succeq I$ are two positive-semidefinite matrices in $\R^{n \times n}$. For any sequence of matrices $M_1, \cdots M_N$ in $\R^{n \times r}$ with $r \leq n$, we have  %$\lambda_1 \geq \lambda_2 \cdots \lambda_r > 1$ and $\Lambda = \mathrm{diag}(\lambda_1, \cdots, \lambda_r)$. For some matrices $\beta_\tau$ we have
 \begin{align*}
-\sigma_r(\utcos_t) \geq C \gamma_0/\sqrt{r} \left[ \lambda_r^t + \sigma_c (1 + \lambda_r + \cdots + \lambda_r^{t-1})\right]
+\sigma_r\left( \sum_{j=1}^n A_1^{n-j} M_{j} \right) \geq \sigma_r\left( \sum_{j=1}^n M_{j} \right)
 \end{align*}
-Finally, we get that with high probability,  
+\end{lem} 
+\begin{proof}
+Let $B = \sum_j M_j$. We know from Ostrwoski's Theorem that
+\begin{gather*}
+\lambda_{\min}(B B^T ) \leq \lambda_{\min}(A_1 B B^T A_1^T) \\
+\lambda_{\min}(B B^T) \leq \lambda_{\min}((A_1)^2 B B^T (A_1^2)^T) \\
+\vdots \\
+\lambda_{\min}(B B^T) \leq \lambda_{\min}((A_1)^N B B^T (A_1^N)^T)
+\end{gather*}
+and thus adding both sides and simlifying
 \begin{align*}
-\SE(U_,U_t) &\leq \frac{\|\utsin_t\|_2}{\sigma_r(\utcos_t)} \leq \frac{C (1+ \gamma_1) \sqrt{n} \left[\lambda_{r+1}^t +  \sigma_c (1 + \lambda_{r+1} + \cdots +  \lambda_{r+1}^{t-1}) \right]}{C \gamma_0/\sqrt{r} \left[ \lambda_r^t + \sigma_c (1 + \lambda_r + \cdots + \lambda_r^{t-1})\right]} \\
-&= \frac{C (1+ \gamma_1) \sqrt{nr}}{\gamma_0} \cdot \frac{\lambda_{r+1}^t +  \sigma_c (1 + \lambda_{r+1} + \cdots +  \lambda_{r+1}^{t-1})}{\lambda_r^t + \sigma_c (1 + \lambda_r + \cdots + \lambda_r^{t-1})} \\
-&:= C_{\gamma,n} \frac{\lambda_{r+1}^t +  \sigma_c (1 + \lambda_{r+1} + \cdots +  \lambda_{r+1}^{t-1})}{\lambda_r^t + \sigma_c (1 + \lambda_r + \cdots + \lambda_r^{t-1})}\\
-&\leq C_{\gamma,n} \frac{\left(\frac{\lambda_{r+1}}{\lambda_r}\right)^t +  \sigma_c \lambda_r^{-t} (1 + \lambda_{r+1} + \cdots +  \lambda_{r+1}^{t-1})}{1 + \sigma_c \lambda_r^{-t} (1 + \lambda_r + \cdots + \lambda_r^{t-1})} \\
-&\leq C_{\gamma,n} \left(\frac{\lambda_{r+1}}{\lambda_r}\right)^t + \frac{\sigma_c}{\lambda_r} t \frac{\max(1, \lambda_{r+1})^{t-1}}{\lambda_{r+1}^{t-1}}\\
-&\leq C_{\gamma,n} t \left( \frac{\max(1, \lambda_{r+1})}{\lambda_{r}}\right)^{t-1} \left[ \left(\frac{\max(1,\lambda_{r+1})}{\lambda_r}\right) + \frac{\sigma_c}{\lambda_r} \right] \\
-&\overset{(a)}{\leq} C_{\gamma,n} t \left( \frac{\lambda_{r+1}}{\lambda_{r}}\right)^{t-1} \left[ \left(\frac{\lambda_{r+1}}{\lambda_r}\right) + \frac{\sigma_c}{\lambda_r} \right]
+N \lambda_{\min}(BB^T) &\leq \sum_{i=1}^N \lambda_{\min}((A_1)^i B B^T (A_1^i)^T) \\
+&\overset{(a)}{\leq}  \lambda_{\min}\left( \sum_{i=1}^N (A_1)^i B B^T (A_1^i)^T \right) \\
+&= \lambda_{\min}\left( \sum_{i=1}^N (A_1)^i  \left(\sum_{j_1=1}^N M_{j_1} \right)  \left(\sum_{j_2=1}^N M_{j_2} \right)^T (A_1^i)^T \right) \\
+&= \lambda_{\min}\left( \sum_{i=1}^N \sum_{j_1=1}^N \sum_{j_2=1}^N (A_1)^i  M_{j_1} M_{j_2}^T (A_1^i)^T \right) \\
+&\overset{(b)}{=} \lambda_{\min} \left( N \sum_{j_1=1}^N \sum_{j_2=1}^N (A_1)^{N - j_1}  M_{j_1} M_{j_2}^T (A_1^{N - j_2})^T 
+ \right) \\
+&\overset{(b)}{=} N \lambda_{\min}\left( \left(\sum_{j_1=1}^N  (A_1)^{N - j_1}  M_{j_1} \right) \left( \sum_{j_2=1}^N A_1^{N - j_2} M_{j_2} \right)^T \right) \\
+\end{align*}
+where $(a)$ follows from Weyl's inequality, and $(b)$ follows by observing that in the triple summation, for all pairs of $j_1 \times j_2$, the exponow observing that $\sigma_r^2(B) = \lambda_{\min}(B B^T)$ completes the proof.
+\end{proof}
+}
+
+
+We now bound the smallest singular value (these are matrices of dimension $r \times r'$, recall) using the following result 
+\cite[Theorem 1.1]{smallest_rect}
+%\cite[Theorem 1.2]{smallest}
+%\begin{theorem}[Lowest Bounding Smallest Singular Value] \label{thm:lower_bnd_square}
+%Let $A$ be a $n \times n$ random matrix whose entries are independent zero-mean sub-Gaussian r.v.'s. Then for any $t >0$ we have 
+%\begin{align*}
+%\sigma_{\min}(A) \geq \frac{t K}{\sqrt n}
+%\end{align*}
+%with probability at least $1 -  \exp(-c n) - (ct)$. Here, $K = max_{i,j} \|A_{i,j}\|_{\psi_2}$. 
+%\end{theorem}
+%We apply this result to $\ucos$ and $\wcos$. Firstly notice that $n \equiv r$. Also, we recall that for $\ucos$, $K = 1$ and for $\wcos_t$, $K = \sigma_c$. Thus
+%\begin{align*}
+%\Pr\left(\sigma_{r}(\ucos) \geq C \gamma_0/\sqrt{r}\right) \geq  1 - \exp(-cr) - (c \gamma_0) \\
+%\Pr\left(\sigma_{r}(\wcos_t) \geq C \gamma_0/\sqrt{r}\right) \geq  1 - \exp(-cr) - (c \gamma_0)
+%\end{align*}
+%where we set $t = \gamma_0$ and notice that the matrices are all $r$-dimensional. And thus, with probability at least $1 - (t+1) (\exp(-cr) + (c\gamma_0))$, 
+%\begin{align*}
+%\sigma_r(\utcos_t) \geq C \gamma_0/\sqrt{r} \left[ \lambda_r^t + \sigma_c (1 + \lambda_r + \cdots + \lambda_r^{t-1})\right]
+%\end{align*}
+
+\begin{theorem}[Lower Bounding Smallest Singular Value for Rectangular matrices]\label{thm:lower_bnd_rect}.
+Let $A$ be a $m \times n$ random matrix whose entries are independent zero-mean sub-Gaussian r.v.'s. Then for any $\epsilon >0$ we have 
+\begin{align*}
+\sigma_{\min}(A) \geq \epsilon C_K(\sqrt{m} - \sqrt{n-1}) 
+\end{align*}
+with probability at least $1 -  \exp(-c_K n) - (c_K \epsilon)^{m -n +1}$. Here, $K = max_{i,j} \|A_{i,j}\|_{\psi_2}$. 
+\end{theorem} 
+We will now obtain bounds on $\sigma_r(\utcos_t^T)$ by applying Theorem \ref{thm:lower_bnd_rect} to $\ucos^T$ and $\sum_\tau \Lambda^{t-\tau} \wcos_\tau^T$. Before that, observe that since $\lambda_1 \geq \cdots \lambda_r >1$, we know that $\Lambda^t \succeq \cdots \Lambda \succeq I_r$ and thus, $\sigma_r\left( \sum_{\tau} \Lambda^{t-\tau} \wcos_\tau \right) \geq \sigma_r\left( \sum_{\tau} \wcos_\tau \right)$ and thus we directly apply Theorem \ref{thm:lower_bnd_rect} to this instead. 
+
+
+Notice that $m \equiv r'$ and $n \equiv r$. Also, we recall that for $\ucos$, $K = 1$ and for $\sum_\tau  \wcos_\tau^T$, $K = \sigma_c $. Thus using $\epsilon = \gamma_0$ for some $\gamma_0 > 0$ we have
+\begin{gather*}
+\Pr\left(\sigma_{r}(\ucos^T) \geq C_K \gamma_0(\sqrt{r'} - \sqrt{r-1})\right) \geq  1 - \exp(-c_Kr) - (c_K \gamma_0)^{r'-r+1} \\
+\Pr\left(\sigma_{r}\left(\sum_\tau \wcos_\tau^T \right) \geq C_K \gamma_0(\sqrt{r'} - \sqrt{r-1})\right) \geq  1 - \exp(-c_Kr) - (c_K \gamma_0)^{r'-r+1}
+\end{gather*}
+And thus, with probability at least $1 - 2 (\exp(-c_Kr) + (c_K\gamma_0)^{r' - r + 1})$, 
+\begin{align*}
+\sigma_r(\utcos_t) &\geq \sigma_r\left(\Lambda^t \right) \sigma_r \left( \ucos\right) + \sigma_r\left( \sum_{\tau=1}^t \Lambda^{t-\tau} \wcos_\tau\right) \\
+&\geq C_K \gamma_0(\sqrt{r'} - \sqrt{r-1}) \left[ \lambda_r^t + 1\right]
 \end{align*}
 
-wherein, for simplicity, we assume in $(a)$ that $\lambda_{r+1} > 1$, then we have the following conclusion:
+Finally, we have that with probability at least $1 - 2 \exp(- \gamma_1^2 n) - 4 \exp(-c_Kr) - 4 (c_K \gamma_0)^{r'-r+1}$  
+\begin{align*}
+\SE(U_,U_t) &\leq \frac{\|\utsin_t\|_2}{\sigma_r(\utcos_t)} \leq \frac{C (1+ \gamma_1) \sqrt{n} t \nu_{r+1}^{t-1} \left[\nu_{r+1} +  \sigma_c\right]}{C_K \gamma_0(\sqrt{r'} - \sqrt{r-1}) \left[ \lambda_r^t + 1 \right]} \\
+&= \frac{C_K (1+ \gamma_1) \sqrt{n} t}{\gamma_0 (\sqrt{r'} - \sqrt{r-1})} \cdot \frac{ \nu_{r+1}^{t-1} (\nu_{r+1} +  \sigma_c )}{\lambda_r^t[ 1 + \lambda_r^{-t}]} \\
+&\leq \frac{C_K (1+ \gamma_1) \sqrt{n} t}{\gamma_0 (\sqrt{r'} - \sqrt{r-1})} \cdot \frac{ \nu_{r+1}^{t-1} (\nu_{r+1} +  \sigma_c )}{\lambda_r^t} \\
+& = \frac{C_K (1+ \gamma_1) \sqrt{n} t}{\gamma_0 (\sqrt{r'} - \sqrt{r-1})} \cdot \left(\frac{\max(1, \lambda_{r+1})}{\lambda_r}\right)^{t-1} \left[ \frac{\max(1, \lambda_{r+1})}{\lambda_r} + \frac{\sigma_c}{\lambda_r}   \right]  \\
+&:= C_{\gamma, n, K} \cdot R^{t-1} (R + \nsrmax)  
+\end{align*}
 
+
+%Finally, we get that with high probability,  
+%\begin{align*}
+%\SE(U_,U_t) &\leq \frac{\|\utsin_t\|_2}{\sigma_r(\utcos_t)} \leq \frac{C (1+ \gamma_1) \sqrt{n} \left[\lambda_{r+1}^t +  \sigma_c (1 + \lambda_{r+1} + \cdots +  \lambda_{r+1}^{t-1}) \right]}{C \gamma_0/\sqrt{r} \left[ \lambda_r^t + \sigma_c (1 + \lambda_r + \cdots + \lambda_r^{t-1})\right]} \\
+%&= \frac{C (1+ \gamma_1) \sqrt{nr}}{\gamma_0} \cdot \frac{\lambda_{r+1}^t +  \sigma_c (1 + \lambda_{r+1} + \cdots +  \lambda_{r+1}^{t-1})}{\lambda_r^t + \sigma_c (1 + \lambda_r + \cdots + \lambda_r^{t-1})} \\
+%&:= C_{\gamma,n} \frac{\lambda_{r+1}^t +  \sigma_c (1 + \lambda_{r+1} + \cdots +  \lambda_{r+1}^{t-1})}{\lambda_r^t + \sigma_c (1 + \lambda_r + \cdots + \lambda_r^{t-1})}\\
+%&\leq C_{\gamma,n} \frac{\left(\frac{\lambda_{r+1}}{\lambda_r}\right)^t +  \sigma_c \lambda_r^{-t} (1 + \lambda_{r+1} + \cdots +  \lambda_{r+1}^{t-1})}{1 + \sigma_c \lambda_r^{-t} (1 + \lambda_r + \cdots + \lambda_r^{t-1})} \\
+%&\leq C_{\gamma,n} \left(\frac{\lambda_{r+1}}{\lambda_r}\right)^t + \frac{\sigma_c}{\lambda_r} t \frac{\max(1, \lambda_{r+1})^{t-1}}{\lambda_{r+1}^{t-1}}\\
+%&\leq C_{\gamma,n} t \left( \frac{\max(1, \lambda_{r+1})}{\lambda_{r}}\right)^{t-1} \left[ \left(\frac{\max(1,\lambda_{r+1})}{\lambda_r}\right) + \frac{\sigma_c}{\lambda_r} \right] \\
+%&\overset{(a)}{\leq} C_{\gamma,n} t \left( \frac{\lambda_{r+1}}{\lambda_{r}}\right)^{t-1} \left[ \left(\frac{\lambda_{r+1}}{\lambda_r}\right) + \frac{\sigma_c}{\lambda_r} \right]
+%\end{align*}
+
+%wherein, for simplicity, we assume in $(a)$ that $\lambda_{r+1} > 1$, then we have the following conclusion:
+
+
+{\color{blue} To be edited
 \begin{theorem}[Main Result -- Isotropic Noise]
 Consider Algorithm \ref{algo:rankr}.
 Define $R_1 = \max(1, \lambda_{r+1})/\lambda_r$ and $\nsrmax = \sigma_c/\lambda_r$. 
@@ -648,75 +783,106 @@ t^* = C \frac{1}{\log(1/R_1)} \log   \left( \frac{C_{\gamma,n} t (R_1 + \nsrmax)
  \SE(U_t, U) \leq \epsilon
  \end{align*}
 \end{theorem}
+}
 
-
-\subsection{Boosting Probability through rank Over-Estimation}
-Here, we perform a rank overestimation, i.e. instead of computing exactly the top $r$-components, we actually compute the top $r'$-components with $r' > r$, i.e., in other words, now we choose $U_0 \in \R^{n \times r'}$, and also, the noise $W_t$ is of the same dimensions. Notice that since the subspace error is not symmetric in its arguments, we have that 
-\begin{align*}
-\SE(U_t, U) = \|(I  - U_t U_t^T) U\| \leq \|(I - U U^T) = \SE(U, U_t)
-\end{align*}
-and thus we can use algebraic simplification as done before. Below we mention the differences:
-\begin{enumerate}
-\item The matrices $\ucos$, $\wcos_t$, $\utcos_t$ are of size $r \times r'$, and the matrices $\usin$, $\wsin_t$, $\utsin_t$ are of size $n - r \times r'$.
-\item Since $U_t \in \R^{n \times r'}$, $Q_t \in \R^{n \times r'}$ and $R_t \in R^{r' \times r'}$ and we will lower bound the $r'$-th singular value of $R_t$ but this will still be the $r$-th singular value of $\utcos_t$. Thus, we can still apply Ostrowski's theorem, and all the algebra follows exactly as before. To verify, let $A \in R^{r \times r}$ and $B \in \R^{r \times r'}$ with $r' \geq r$. Then, 
-\begin{align*}
-\sigma_{r}^2(AB) = \lambda_{r}(ABB'A') \geq \lambda_{\min}(AA') \lambda_{r}(BB') = \sigma_{\min}^2(A) \sigma_{r}^2(B)
-\end{align*}
-\item In the numerator for sine of subspace error, i.e., in the application of Theorem \ref{thm:upper_bnd} nothing changes, since the dominant factors are $\sqrt{n}$. 
-\item We cannot apply Theorem \ref{thm:lower_bnd_square} for the lower bound since this only works for square matrices. Instead we will use the following result \cite[Theorem 1.1]{smallest_rect}:
-\begin{theorem}[Lower Bounding Smallest Singular Value for Rectangular matrices]\label{thm:lower_bnd_rect}.
-Let $A$ be a $N \times n$ random matrix whose entries are independent zero-mean sub-Gaussian r.v.'s. Then for any $t >0$ we have 
-\begin{align*}
-\sigma_{\min}(A) \geq t C_K(\sqrt{N} - \sqrt{n-1}) 
-\end{align*}
-with probability at least $1 -  \exp(-c_K n) - (c_Kt)^{N -n +1}$. Here, $K = max_{i,j} \|A_{i,j}\|_{\psi_2}$. 
-\end{theorem} 
-and we will now obtain bounds on $\sigma_r(\utcos_t^T)$ by applying this result to $\ucos^T$ and $\wcos^T$. Firstly notice that $N \equiv r'$ and $n \equiv r$. Also, we recall that for $\ucos$, $K = 1$ and for $\wcos_t$, $K = \sigma_c$. Thus using $t = \gamma_0$ we have
-\begin{align*}
-\Pr\left(\sigma_{r}(\ucos) \geq C_K \gamma_0(\sqrt{r'} - \sqrt{r-1})\right) \geq  1 - \exp(-c_Kr) - (c_K \gamma_0)^{r'-r+1} \\
-\Pr\left(\sigma_{r}(\wcos_t) \geq C_K \gamma_0(\sqrt{r'} - \sqrt{r-1})\right) \geq  1 - \exp(-c_Kr) - (c_K \gamma_0)^{r'-r+1}
-\end{align*}
-And thus, with probability at least $1 - (t+1) (\exp(-c_Kr) + (c_K\gamma_0)^{r' - r + 1})$, 
-\begin{align*}
-\sigma_r(\utcos_t) \geq C_K \gamma_0(\sqrt{r'} - \sqrt{r-1}) \left[ \lambda_r^t + \sigma_c (1 + \lambda_r + \cdots + \lambda_r^{t-1})\right]
-\end{align*}
-which has the effect of modifying $C_{\gamma,n}$ to the following 
-\begin{align*}
-C_{\gamma,n} = \frac{C_K(1+\gamma_1)\sqrt{n}}{\gamma_0 \sqrt{r'} - \sqrt{r-1}}
-\end{align*}
-and boosts the success probability of Algorithm \ref{algo:rankr} to $1 - (t + 1) \exp(- \gamma_1^2 n) - (t+1) (\exp(-c_Kr) + (c_K \gamma_0)^{r'-r+1})$
-\end{enumerate}
-
-{\color{blue}
-\subsection{Avoiding Union Bound}
-Consider the following approach for bounding $\|\utsin_t\|$ and $\sigma_r(\utcos_t)$. Define the matrix 
-$M = \sum_{\tau=1}^t \Lambda_\perp^{t-\tau}  \wsin_t$, instead of applying Theorem \ref{thm:upper_bnd} to each $\wsin_t$ separately, we can in fact apply it directly to $M$. The reason is that since each entry of $\wsin_t$ is independent, each entry of $M$ is a weighted sum of $t$ indepdendent Gaussian r.v.'s. In other words
-\begin{gather*}
-M_{ij} = \sum_{\tau=1}^t (\lambda_\perp)_i^{t-\tau} (\wsin_{\tau})_{ij} \\
-\implies M_{i,j} \sim \mathcal{N}\left(0, \sigma_c^2 \sum_{\tau=1}^t (\lambda_\perp)_i^{2(t-\tau)}\right)
-\implies \max_{ij} \|(M)_{ij}\|_{\psi_2} = \sigma_c \sqrt{\sum_{\tau=1}^t \lambda_{r+1}^{2(t-\tau)}} \leq \sigma_c t \max(1, \lambda_{r+1})^{t-1} := K
-\end{gather*}
-Firstly notice that $m \equiv n-r$ and $n \equiv r$. Also, for $\usin$, $K = 1$ and for $M = \sum_{\tau} \Lambda_\perp^{t-\tau}\wsin_\tau$, $K = \sigma_c t \max(1, \lambda_{r+1})^{t-1}$. Thus, 
-\begin{gather*}
-\Pr\left(\|\usin\| \leq C (1 + \gamma_1)(\sqrt{n-r} + \sqrt{r})\right) \geq  1 - \exp(- \gamma_1^2 n) \\
-\Pr\left(\norm{\sum_{\tau=1}^t \Lambda_\perp^{t-\tau} \wsin_\tau} \leq C \sigma_c t \max(1, \lambda_{r+1})^{t-1} (1 + \gamma_1)(\sqrt{n-r} + \sqrt{r}) \right) \geq  1 - \exp(- \gamma_1^2 n)
-\end{gather*}
-where we used $t = \gamma_1 (\sqrt{n-r} + \sqrt{r}) \implies \|A\| \leq CK (1+ \gamma_1) (\sqrt{n-r} + \sqrt{r}) \leq 2CK (1+ \gamma_1) \sqrt{n}$. Will also need to assume that $r < cn$ for the failure probability to be $\exp(-\gamma_1^2 n)$. Also we define $\nu_{r+1} = \max(1, \lambda_{r+1})$ for notational simplicity. 
-
- And thus, we notice that with probability at least $1 - 2 \exp(- \gamma_1^2 n)$, 
-\begin{align*}
-\|\utsin_t\| &\leq C (1+ \gamma_1) \sqrt{n} \left[\lambda_{r+1}^t +  \sigma_c t \nu_{r+1}^{t-1}  \right] \\
-&\leq C (1+ \gamma_1) \sqrt{n} \nu_{r+1}^{t-1} t (\nu_{r+1} + \sigma_c) \\
-\end{align*}
-
-%Now consider the lower bound: First for simplicity we will use the HDP book. This says the following
-%\begin{theorem}[Theorem 4.6.1 \cite{hdp_book}]\label{thm:hdp_lower_bnd}
-%Let $A$ be an $m \times n$ matrix whose rows $A_i$ are independent mean-zero sub-Gaussian isotropic random vectors in $\R^n$. Then for any $t > 0$ we have that with probability at least $1 - 2 \exp(-t^2)$
+%\subsection{Boosting Probability through rank Over-Estimation}
+%Here, we perform a rank overestimation, i.e. instead of computing exactly the top $r$-components, we actually compute the top $r'$-components with $r' > r$, i.e., in other words, now we choose $U_0 \in \R^{n \times r'}$, and also, the noise $W_t$ is of the same dimensions. Notice that since the subspace error is not symmetric in its arguments, we have that 
 %\begin{align*}
-%\sigma_n(A) \geq \sqrt{m} - CK^2(\sqrt{n} +t)
+%\SE(U_t, U) = \|(I  - U_t U_t^T) U\| \leq \|(I - U U^T) = \SE(U, U_t)
 %\end{align*}
-%where $K = \max_{i} \|A_i\|_{\psi_2}$
-%\end{theorem}
+%and thus we can use algebraic simplification as done before. Below we mention the differences:
+%\begin{enumerate}
+%\item The matrices $\ucos$, $\wcos_t$, $\utcos_t$ are of size $r \times r'$, and the matrices $\usin$, $\wsin_t$, $\utsin_t$ are of size $n - r \times r'$.
+%\item Since $U_t \in \R^{n \times r'}$, $Q_t \in \R^{n \times r'}$ and $R_t \in R^{r' \times r'}$ and we will lower bound the $r'$-th singular value of $R_t$ but this will still be the $r$-th singular value of $\utcos_t$. Thus, we can still apply Ostrowski's theorem, and all the algebra follows exactly as before. To verify, let $A \in R^{r \times r}$ and $B \in \R^{r \times r'}$ with $r' \geq r$. Then, 
+%\begin{align*}
+%\sigma_{r}^2(AB) = \lambda_{r}(ABB'A') \geq \lambda_{\min}(AA') \lambda_{r}(BB') = \sigma_{\min}^2(A) \sigma_{r}^2(B)
+%\end{align*}
+%\item In the numerator for sine of subspace error, i.e., in the application of Theorem \ref{thm:upper_bnd} nothing changes, since the dominant factors are $\sqrt{n}$. 
+%\item We cannot apply Theorem \ref{thm:lower_bnd_square} for the lower bound since this only works for square matrices. Instead we will use the following result \cite[Theorem 1.1]{smallest_rect}:
+%\begin{theorem}[Lower Bounding Smallest Singular Value for Rectangular matrices]\label{thm:lower_bnd_rect}.
+%Let $A$ be a $N \times n$ random matrix whose entries are independent zero-mean sub-Gaussian r.v.'s. Then for any $t >0$ we have 
+%\begin{align*}
+%\sigma_{\min}(A) \geq t C_K(\sqrt{N} - \sqrt{n-1}) 
+%\end{align*}
+%with probability at least $1 -  \exp(-c_K n) - (c_Kt)^{N -n +1}$. Here, $K = max_{i,j} \|A_{i,j}\|_{\psi_2}$. 
+%\end{theorem} 
+%and we will now obtain bounds on $\sigma_r(\utcos_t^T)$ by applying this result to $\ucos^T$ and $\wcos^T$. Firstly notice that $N \equiv r'$ and $n \equiv r$. Also, we recall that for $\ucos$, $K = 1$ and for $\wcos_t$, $K = \sigma_c$. Thus using $t = \gamma_0$ we have
+%\begin{align*}
+%\Pr\left(\sigma_{r}(\ucos) \geq C_K \gamma_0(\sqrt{r'} - \sqrt{r-1})\right) \geq  1 - \exp(-c_Kr) - (c_K \gamma_0)^{r'-r+1} \\
+%\Pr\left(\sigma_{r}(\wcos_t) \geq C_K \gamma_0(\sqrt{r'} - \sqrt{r-1})\right) \geq  1 - \exp(-c_Kr) - (c_K \gamma_0)^{r'-r+1}
+%\end{align*}
+%And thus, with probability at least $1 - (t+1) (\exp(-c_Kr) + (c_K\gamma_0)^{r' - r + 1})$, 
+%\begin{align*}
+%\sigma_r(\utcos_t) \geq C_K \gamma_0(\sqrt{r'} - \sqrt{r-1}) \left[ \lambda_r^t + \sigma_c (1 + \lambda_r + \cdots + \lambda_r^{t-1})\right]
+%\end{align*}
+%which has the effect of modifying $C_{\gamma,n}$ to the following 
+%\begin{align*}
+%C_{\gamma,n} = \frac{C_K(1+\gamma_1)\sqrt{n}}{\gamma_0 \sqrt{r'} - \sqrt{r-1}}
+%\end{align*}
+%and boosts the success probability of Algorithm \ref{algo:rankr} to $1 - (t + 1) \exp(- \gamma_1^2 n) - (t+1) (\exp(-c_Kr) + (c_K \gamma_0)^{r'-r+1})$
+%\end{enumerate}
+%
+%{\color{blue}
+%\subsection{Avoiding Union Bound}
+%Consider the following approach for bounding $\|\utsin_t\|$ and $\sigma_r(\utcos_t)$. Define the matrix 
+%$M = \sum_{\tau=1}^t \Lambda_\perp^{t-\tau}  \wsin_t$, instead of applying Theorem \ref{thm:upper_bnd} to each $\wsin_t$ separately, we can in fact apply it directly to $M$. The reason is that since each entry of $\wsin_t$ is independent, each entry of $M$ is a weighted sum of $t$ indepdendent Gaussian r.v.'s. In other words
+%\begin{gather*}
+%M_{ij} = \sum_{\tau=1}^t (\lambda_\perp)_i^{t-\tau} (\wsin_{\tau})_{ij} \\
+%\implies M_{i,j} \sim \mathcal{N}\left(0, \sigma_c^2 \sum_{\tau=1}^t (\lambda_\perp)_i^{2(t-\tau)}\right)
+%\implies \max_{ij} \|(M)_{ij}\|_{\psi_2} = \sigma_c \sqrt{\sum_{\tau=1}^t \lambda_{r+1}^{2(t-\tau)}} \leq \sigma_c t \max(1, \lambda_{r+1})^{t-1} := K
+%\end{gather*}
+%Firstly notice that $m \equiv n-r$ and $n \equiv r$. Also, for $\usin$, $K = 1$ and for $M = \sum_{\tau} \Lambda_\perp^{t-\tau}\wsin_\tau$, $K = \sigma_c t \max(1, \lambda_{r+1})^{t-1}$. Thus, 
+%\begin{gather*}
+%\Pr\left(\|\usin\| \leq C (1 + \gamma_1)(\sqrt{n-r} + \sqrt{r})\right) \geq  1 - \exp(- \gamma_1^2 n) \\
+%\Pr\left(\norm{\sum_{\tau=1}^t \Lambda_\perp^{t-\tau} \wsin_\tau} \leq C \sigma_c t \max(1, \lambda_{r+1})^{t-1} (1 + \gamma_1)(\sqrt{n-r} + \sqrt{r}) \right) \geq  1 - \exp(- \gamma_1^2 n)
+%\end{gather*}
+%where we used $t = \gamma_1 (\sqrt{n-r} + \sqrt{r}) \implies \|A\| \leq CK (1+ \gamma_1) (\sqrt{n-r} + \sqrt{r}) \leq 2CK (1+ \gamma_1) \sqrt{n}$. Will also need to assume that $r < cn$ for the failure probability to be $\exp(-\gamma_1^2 n)$. Also we define $\nu_{r+1} = \max(1, \lambda_{r+1})$ for notational simplicity. 
+%
+% And thus, we notice that with probability at least $1 - 2 \exp(- \gamma_1^2 n)$, 
+%\begin{align*}
+%\|\utsin_t\| &\leq C (1+ \gamma_1) \sqrt{n} \left[\lambda_{r+1}^t +  \sigma_c t \nu_{r+1}^{t-1}  \right] \\
+%&\leq C (1+ \gamma_1) \sqrt{n} \nu_{r+1}^{t-1} t (\nu_{r+1} + \sigma_c) \\
+%\end{align*}
+%
+%%Now consider the lower bound: First for simplicity we will use the HDP book. This says the following
+%%\begin{theorem}[Theorem 4.6.1 \cite{hdp_book}]\label{thm:hdp_lower_bnd}
+%%Let $A$ be an $m \times n$ matrix whose rows $A_i$ are independent mean-zero sub-Gaussian isotropic random vectors in $\R^n$. Then for any $t > 0$ we have that with probability at least $1 - 2 \exp(-t^2)$
+%%\begin{align*}
+%%\sigma_n(A) \geq \sqrt{m} - CK^2(\sqrt{n} +t)
+%%\end{align*}
+%%where $K = \max_{i} \|A_i\|_{\psi_2}$
+%%\end{theorem}
+%
+%
+%
+%
+%We will now obtain bounds on $\sigma_r(\utcos_t^T)$ by applying Theorem \ref{thm:lower_bnd_rect} to $\ucos^T$ and $\sum_\tau \Lambda^{t-\tau} \wcos_\tau^T$. Before that, observe that since $\lambda_1 \geq \cdots \lambda_r >1$, we know that $\Lambda^t \succeq \cdots \Lambda \succeq I_r$ and thus, $\sigma_r\left( \sum_{\tau} \Lambda^{t-\tau} \wcos_\tau \right) \geq \sigma_r\left( \sum_{\tau} \wcos_\tau \right)$ and thus we directly apply Theorem \ref{thm:lower_bnd_rect} to this instead. 
+%
+%
+%Firstly notice that $N \equiv r'$ and $n \equiv r$. Also, we recall that for $\ucos$, $K = 1$ and for $\sum_\tau  \wcos_\tau^T$, $K = \sigma_c $. Thus using $t = \gamma_0$ we have
+%\begin{align*}
+%\Pr\left(\sigma_{r}\left(\sum_\tau \wcos_\tau^T \right) \geq C_K \gamma_0(\sqrt{r'} - \sqrt{r-1})\right) \geq  1 - \exp(-c_Kr) - (c_K \gamma_0)^{r'-r+1}
+%\end{align*}
+%And thus, with probability at least $1 - 2 (\exp(-c_Kr) + (c_K\gamma_0)^{r' - r + 1})$, 
+%\begin{align*}
+%\sigma_r(\utcos_t) \geq C_K \gamma_0(\sqrt{r'} - \sqrt{r-1}) \left[ \lambda_r^t + 1\right]
+%\end{align*}
+%
+%Finally, we have that with probability at least $1 - 2 \exp(- \gamma_1^2 n) - 4 \exp(-c_Kr) - 4 (c_K \gamma_0)^{r'-r+1}$  
+%\begin{align*}
+%\SE(U_,U_t) &\leq \frac{\|\utsin_t\|_2}{\sigma_r(\utcos_t)} \leq \frac{C (1+ \gamma_1) \sqrt{n} t \nu_{r+1}^{t-1} \left[\nu_{r+1} +  \sigma_c\right]}{C_K \gamma_0(\sqrt{r'} - \sqrt{r-1}) \left[ \lambda_r^t + 1 \right]} \\
+%&= \frac{C_K (1+ \gamma_1) \sqrt{n} t}{\gamma_0 (\sqrt{r'} - \sqrt{r-1})} \cdot \frac{ \nu_{r+1}^{t-1} (\nu_{r+1} +  \sigma_c )}{\lambda_r^t[ 1 + \lambda_r^{-t}]} \\
+%&\leq \frac{C_K (1+ \gamma_1) \sqrt{n} t}{\gamma_0 (\sqrt{r'} - \sqrt{r-1})} \cdot \frac{ \nu_{r+1}^{t-1} (\nu_{r+1} +  \sigma_c )}{\lambda_r^t} \\
+%& = \frac{C_K (1+ \gamma_1) \sqrt{n} t}{\gamma_0 (\sqrt{r'} - \sqrt{r-1})} \cdot \left(\frac{\max(1, \lambda_{r+1})}{\lambda_r}\right)^{t-1} \left[ \frac{\max(1, \lambda_{r+1})}{\lambda_r} + \frac{\sigma_c}{\lambda_r}   \right]  \\
+%&:= C_{\gamma, n, K} \cdot R^{t-1} (R + \nsrmax)  
+%\end{align*}
+
+%
+%which has the effect of modifying $C_{\gamma,n}$ to the following 
+%\begin{align*}
+%C_{\gamma,n} = \frac{C_K(1+\gamma_1)\sqrt{n}}{\gamma_0 \sqrt{r'} - \sqrt`{r-1}}
+%\end{align*}
+%and boosts the success probability of Algorithm \ref{algo:rankr} to $1 - 2 \exp(- \gamma_1^2 n) - 4 \exp(-c_Kr) - 4 (c_K \gamma_0)^{r'-r+1}$.
 
 { \color{red} Some major issues need to be figured out, problem is that we want to get
 \begin{align*}
@@ -726,37 +892,6 @@ this is not trivial to obtain. Weyl etc will end up giving only the second term 
 }
 
 
-We will now obtain bounds on $\sigma_r(\utcos_t^T)$ by applying Theorem \ref{thm:lower_bnd_rect} to $\ucos^T$ and $\sum_\tau \Lambda^{t-\tau} \wcos_\tau^T$. Before that, observe that since $\lambda_1 \geq \cdots \lambda_r >1$, we know that $\Lambda^t \succeq \cdots \Lambda \succeq I_r$ and thus, $\sigma_r\left( \sum_{\tau} \Lambda^{t-\tau} \wcos_\tau \right) \geq \sigma_r\left( \sum_{\tau} \wcos_\tau \right)$ and thus we directly apply Theorem \ref{thm:lower_bnd_rect} to this instead. 
-
-
-Firstly notice that $N \equiv r'$ and $n \equiv r$. Also, we recall that for $\ucos$, $K = 1$ and for $\sum_\tau  \wcos_\tau^T$, $K = \sigma_c $. Thus using $t = \gamma_0$ we have
-\begin{align*}
-\Pr\left(\sigma_{r}\left(\sum_\tau \wcos_\tau^T \right) \geq C_K \gamma_0(\sqrt{r'} - \sqrt{r-1})\right) \geq  1 - \exp(-c_Kr) - (c_K \gamma_0)^{r'-r+1}
-\end{align*}
-And thus, with probability at least $1 - 2 (\exp(-c_Kr) + (c_K\gamma_0)^{r' - r + 1})$, 
-\begin{align*}
-\sigma_r(\utcos_t) \geq C_K \gamma_0(\sqrt{r'} - \sqrt{r-1}) \left[ \lambda_r^t + 1\right]
-\end{align*}
-
-Finally, we have that with probability at least $1 - 2 \exp(- \gamma_1^2 n) - 4 \exp(-c_Kr) - 4 (c_K \gamma_0)^{r'-r+1}$  
-\begin{align*}
-\SE(U_,U_t) &\leq \frac{\|\utsin_t\|_2}{\sigma_r(\utcos_t)} \leq \frac{C (1+ \gamma_1) \sqrt{n} t \nu_{r+1}^{t-1} \left[\nu_{r+1} +  \sigma_c\right]}{C_K \gamma_0(\sqrt{r'} - \sqrt{r-1}) \left[ \lambda_r^t + 1 \right]} \\
-&= \frac{C_K (1+ \gamma_1) \sqrt{n} t}{\gamma_0 (\sqrt{r'} - \sqrt{r-1})} \cdot \frac{ \nu_{r+1}^{t-1} (\nu_{r+1} +  \sigma_c )}{\lambda_r^t[ 1 + \lambda_r^{-t}]} \\
-&\leq \frac{C_K (1+ \gamma_1) \sqrt{n} t}{\gamma_0 (\sqrt{r'} - \sqrt{r-1})} \cdot \frac{ \nu_{r+1}^{t-1} (\nu_{r+1} +  \sigma_c )}{\lambda_r^t} \\
-& = \frac{C_K (1+ \gamma_1) \sqrt{n} t}{\gamma_0 (\sqrt{r'} - \sqrt{r-1})} \cdot \left(\frac{\max(1, \lambda_{r+1})}{\lambda_r}\right)^{t-1} \left[ \frac{\max(1, \lambda_{r+1})}{\lambda_r} + \frac{\sigma_c}{\lambda_r}   \right]  \\
-&:= C_{\gamma, n, K} \cdot R^{t-1} (R + \nsrmax)  
-\end{align*}
-
-%
-%which has the effect of modifying $C_{\gamma,n}$ to the following 
-%\begin{align*}
-%C_{\gamma,n} = \frac{C_K(1+\gamma_1)\sqrt{n}}{\gamma_0 \sqrt{r'} - \sqrt`{r-1}}
-%\end{align*}
-%and boosts the success probability of Algorithm \ref{algo:rankr} to $1 - 2 \exp(- \gamma_1^2 n) - 4 \exp(-c_Kr) - 4 (c_K \gamma_0)^{r'-r+1}$.
-
-
-
-}
 {\color{red} 
 To do:
 
@@ -771,8 +906,7 @@ To do:
 
 
 \section{Missing Data -- Problem Formulation}
-In this section we first concretely state the problem formulation. Let us assume that there are $k$ nodes, each of whom observe a subset of data. In other words, 
-
+In this section we first concretely state the problem formulation. Let us assume that there are $k$ nodes, each of whom observe a subset of data. In other words, at node $k \in [K]$
 
 \section{Rank $r$ Anisotropic Setting}
 
@@ -824,6 +958,22 @@ We try two different variants of the power method. In the first we normalize the
 
 We see from Figs. \ref{fig:l1g1_1}, \ref{fig:l1g1_2} that in the case of $\lambda_1 > 1$, the normalized method does not work when the channel noise energy, $\sigma_c$ is large. However, considering only the un-normalized case in the sequel, notice that even if we set $\sigma_c \gg \lambda_1$, the algorithm converges to the true solution, but requires more number of iterations.
 
+
+
+\begin{minipage}[t]{.5\linewidth}
+\centering
+\includegraphics[scale=.6]{figures/l1_1_5_l2_1_051_sig_10.eps}
+\captionof{figure}{$\lambda_1 = 2.25$, $\lambda_2 = 1.1025$, $\sigma_c = 10$}
+\label{fig:chk_r1}
+\end{minipage}%
+\begin{minipage}[t]{.5\linewidth}
+\centering
+\includegraphics[scale=.6]{figures/l1_1_5_l2_0_051_sig_10.eps}
+\captionof{figure}{$\lambda_1 = 2.25$, $\lambda_2 = 0.0025$, $\sigma_c = 10$. Even though $\lambda_2/\lambda_1$ is smaller than the previous case, the convergence is slower. Everything else is the same.}
+\label{fig:chk_r2}
+\end{minipage}
+
+
 \begin{minipage}[t]{.5\linewidth}
 \centering
 \includegraphics[scale=.5]{figures/l1_10_l2_5e-1_sig_10.eps}
@@ -867,36 +1017,8 @@ Finally, to alleviate the issue of $\lambda_1 \leq 1$, we consider the case of s
 \label{fig:l1l1_1_n}
 \end{minipage}
 
-\section{Literature Survey}
-First we describe the problem setting of several related problems. 
 
-\subsection{Problem Settings}
-\subsubsection{Streaming PCA}
-In this problem, the goal is to compute the top singular vectors of a data stream. Typically, the data is assumed to be drawd i.i.d. from some ``nice'' distribution, and the constraint is that (i) one cannot store all the data in memory; (ii) one cannot make too many passes on the data.
 
-Here we summarize the main results of some prominent papers in this area. 
-
-{\bf Noisy Power method \cite{noisy_pm}:} To the best of our knowledge, this was one of the first papers to provide a robust convergence analysis of power method. In particular, their results shows that (i) in the context of streaming PCA, 
-
-\color{blue}
-\section{Discussion}
-\begin{enumerate}
-\item Note that in fact, if using naive bounds, in fact $C \approx n - 1$. maybe there is a better way to bound this which leverages independence etc. 
-\item not a fully formed thought, but are there any connections between this and ``convergence of proximal algorithms'' for convex objectives?
-\item this is not really convergence of output, it says normalized vector is close to ground truth
-\item how to explain the fact that $\lambda_2$ and not $\lambda_1$ requires assumptions? is there a way to combine the cases, and absorb noise?
-\end{enumerate}
-
-\subsection{points of discussion after meeting}
-
-\begin{enumerate}
-\item existing work in this area
-\item variants of power method
-\item can look at coloured noise, across \em{space and time}
-\item security -- byzantine issues
-\item any relation to momentum/proximal algorithm convergence?
-\item extension to lrmc etc
-\end{enumerate}
 
 
 
