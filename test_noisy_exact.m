@@ -10,7 +10,7 @@ clc
 close all
 rng shuffle
 
-%% define data model parameters
+%% define data model parametersP. N. Karthik 
 n = 100;
 r = 1;
 signal_energy = 1.5;
@@ -233,4 +233,4 @@ title('PM without normalization')
 % xlabel(strx, 'Interpreter', 'latex', 'FontSize', 18) 
 % 
 % fprintf('SE for biased noisy power method (without norm): %d \n', conv_noise_sig(end))
-
+%how to fix the rank r case
