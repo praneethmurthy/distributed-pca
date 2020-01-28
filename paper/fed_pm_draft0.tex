@@ -658,11 +658,8 @@ The problem with using this approach is that we will get the denominator bound a
 \end{align*}
 the last two terms use Theorem \ref{thm:upper_bnd} on the $r \times r'$ matrices with $K_1 = c \lambda_1^t$. The issue with this is that we will need to choose $\gamma_1 \sim (\lambda_r/\lambda_1)^{2t}$ which is problematic and we will end up getting a probability bound of $\exp(-r R^{2t})$.
 
-%where $(a)$ uses Weyl's inequality, $(b)$ follows because of Ostrowski's inequality as follows: 
-%\begin{align*}
-%\sigma_{\min}^2(AB) = \lambda_{\min}(B'A'A B) \geq \lambda_{\min}(A'A) \lambda_{\min}(B'B) = \sigma_{\min}^2(A) \sigma_{\min}^2(B)
-%\end{align*}
-%We can apply Ostrowski because we have that $B$ is non-singular, and $A'A$ is Hermitian. 
+If we however, choose $\gamma_1 = c$, this leads to the denominator being negative. 
+
 
 {\color{blue} 
 In a naive way, we can always directly obtain bounds on the second term above. The only ``issue'' is that $C_K = \sigma_c t \lambda_1^t$. This is technically not a problem since the dependence of $t$ on $C_k$ is just logarithmic but still it may raise the question that there is an exponential dependence on $\lambda_1$!. However, I strongly belive that we can do better using the approach below. The proof is not completely correct but I really think I can fix it. 
