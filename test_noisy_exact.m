@@ -10,12 +10,12 @@ clc
 close all
 rng shuffle
 
-%% define data model parametersP. N. Karthik 
-n = 100;
-r = 1;
-signal_energy = 1.5;
-noise_energy = signal_energy - 1e-3;
-ch_noise_energy = 100;
+%% define data model parameters
+n = 1000;
+r = 50;
+signal_energy = 1.1;
+noise_energy = 1.0;
+ch_noise_energy = 1e-8;
 
 
 %% generate the "rectangular" data points, and also the sample covariance
@@ -36,14 +36,16 @@ title('singular values of original matrix')
 
 
 %% vanilla power method -- with normalization
-power_iter = 5000;
+power_iter = 500;
+taubatch = 10;
 u_vanilla_norm = randn(n, r);
 u_vanilla_norm = u_vanilla_norm / norm(u_vanilla_norm);
 conv_vanilla_norm = zeros(1, power_iter+1);
 conv_vanilla_norm(1) = sin(subspace(u_init, u_vanilla_norm));
 for ii = 1 : power_iter
     u_vanilla_norm = X * u_vanilla_norm;
-    u_vanilla_norm = u_vanilla_norm/norm(u_vanilla_norm);
+    [u_vanilla_norm, ~ ] = qr(u_vanilla_norm, 0);
+    %u_vanilla_norm = u_vanilla_norm/norm(u_vanilla_norm);
     conv_vanilla_norm(ii+1) = sin(subspace(u_true, u_vanilla_norm));
 end 
 
@@ -65,6 +67,10 @@ conv_vanilla = zeros(1, power_iter+1);
 conv_vanilla(1) = sin(subspace(u_true, u_vanilla));
 for ii = 1 : power_iter
     u_vanilla = X * u_vanilla;
+    if(~mod(ii, taubatch))
+        %[u_vanilla,~] = qr(u_vanilla, 0);
+        u_vanilla = orth(u_vanilla);
+    end
     conv_vanilla(ii+1) = sin(subspace(u_true, u_vanilla));
 end 
 
@@ -83,13 +89,14 @@ fprintf('SE for vanilla power method (without norm): %d \n', ...
 
 %% channel noise power method -- with normalization
 u_noise_norm = randn(n, r);
-u_noise_norm = u_noise_norm / norm(u_noise_norm);
+%u_noise_norm = u_noise_norm / norm(u_noise_norm);
 conv_noise_norm = zeros(1, power_iter+1);
 conv_noise_norm(1) = sin(subspace(u_true, u_noise_norm));
 for ii = 1 : power_iter
     ch_noise = ch_noise_energy * randn(n, r);
     u_noise_norm = X * u_noise_norm + ch_noise;
-    u_noise_norm = u_noise_norm/norm(u_noise_norm);
+    %u_noise_norm = u_noise_norm/norm(u_noise_norm);
+    [u_noise_norm,~] = qr(u_noise_norm, 0);
     conv_noise_norm(ii+1) = sin(subspace(u_true, u_noise_norm));
 end 
 
@@ -112,7 +119,13 @@ conv_noise(1) = sin(subspace(u_true, u_noise));
 for ii = 1 : power_iter
     ch_noise = ch_noise_energy * randn(n, r);
     u_noise = X * u_noise + ch_noise;
+    
     conv_noise(ii+1) = sin(subspace(u_true, u_noise));
+    if(~mod(ii, taubatch))
+        norm(u_noise)
+        %[u_noise,~] = qr(u_noise, 0);
+        u_noise = orth(u_noise);
+    end
 end 
 
 subplot(224)
@@ -128,17 +141,51 @@ fprintf('SE for noisy power method (without norm): %d \n', conv_noise(end))
 
 
 
-figure;
-subplot(211)
+% figure;
+% subplot(211)
+% 
+% plot([1: power_iter+1], log10(conv_vanilla_norm), 'kd', 'LineStyle', '--', 'MarkerSize', 6, 'LineWidth', 2)
+% hold
+% plot([1: power_iter+1], log10(conv_noise_norm),'rs', 'LineStyle', '-.', 'MarkerSize', 6, 'LineWidth', 2)
+% %plot([1: power_iter+1], log10(conv_noise_sig_norm), 'go', 'LineStyle', '-', 'MarkerSize', 6, 'LineWidth', 2)
+% axis tight
+% grid on
+% % legend('noiseless', 'with channel noise', 'with biased channel noise')
+% l1 = legend('noiseless', 'with channel noise');
+% l1.FontSize = 15;
+% stry = '$$\log(SE({u}_t, u_1^*))$$';
+% strx = '$$\mathrm{power\ iterations} (t) $$';
+% ylabel(stry, 'Interpreter', 'latex', 'FontSize', 18) 
+% xlabel(strx, 'Interpreter', 'latex', 'FontSize', 18) 
+% title('PM with normalization')
+% 
+% subplot(212)
+% plot([1: power_iter+1], log10(conv_vanilla), 'k+', 'LineStyle', '--', 'MarkerSize', 6, 'LineWidth', 2)
+% hold
+% plot([1: power_iter+1], log10(conv_noise),'rs', 'LineStyle', '-.', 'MarkerSize', 6, 'LineWidth', 2)
+% %plot([1: power_iter+1], log10(conv_noise_sig), 'go', 'LineStyle', '-', 'MarkerSize', 6, 'LineWidth', 2)
+% axis tight
+% grid on
+% % legend('noiseless', 'with channel noise', 'with biased channel noise')
+% l1 = legend('noiseless', 'with channel noise');
+% l1.FontSize = 15;
+% 
+% stry = '$$\log(SE({u}_t, u_1^*))$$';
+% strx = '$$\mathrm{power\ iterations} (t) $$';
+% ylabel(stry, 'Interpreter', 'latex', 'FontSize', 18) 
+% xlabel(strx, 'Interpreter', 'latex', 'FontSize', 18) 
+% title('PM without normalization')
 
-plot([1: power_iter+1], log10(conv_vanilla_norm), 'kd', 'LineStyle', '--', 'MarkerSize', 6, 'LineWidth', 2)
+
+figure;
+plot(linspace(1, power_iter+1, (power_iter)/taubatch+1), log10(conv_noise_norm(1:taubatch:end)),'k+', 'LineStyle', '--', 'MarkerSize', 6, 'LineWidth', 2)
 hold
-plot([1: power_iter+1], log10(conv_noise_norm),'rs', 'LineStyle', '-.', 'MarkerSize', 6, 'LineWidth', 2)
+plot(linspace(1, power_iter+1, (power_iter)/taubatch+1), log10(conv_noise(1:taubatch:end)),'rs', 'LineStyle', '-.', 'MarkerSize', 6, 'LineWidth', 2)
 %plot([1: power_iter+1], log10(conv_noise_sig_norm), 'go', 'LineStyle', '-', 'MarkerSize', 6, 'LineWidth', 2)
 axis tight
 grid on
 % legend('noiseless', 'with channel noise', 'with biased channel noise')
-l1 = legend('noiseless', 'with channel noise');
+l1 = legend('normalize every iter', 'normalize after taubatch');
 l1.FontSize = 15;
 stry = '$$\log(SE({u}_t, u_1^*))$$';
 strx = '$$\mathrm{power\ iterations} (t) $$';
@@ -146,22 +193,6 @@ ylabel(stry, 'Interpreter', 'latex', 'FontSize', 18)
 xlabel(strx, 'Interpreter', 'latex', 'FontSize', 18) 
 title('PM with normalization')
 
-subplot(212)
-plot([1: power_iter+1], log10(conv_vanilla), 'k+', 'LineStyle', '--', 'MarkerSize', 6, 'LineWidth', 2)
-hold
-plot([1: power_iter+1], log10(conv_noise),'rs', 'LineStyle', '-.', 'MarkerSize', 6, 'LineWidth', 2)
-%plot([1: power_iter+1], log10(conv_noise_sig), 'go', 'LineStyle', '-', 'MarkerSize', 6, 'LineWidth', 2)
-axis tight
-grid on
-% legend('noiseless', 'with channel noise', 'with biased channel noise')
-l1 = legend('noiseless', 'with channel noise');
-l1.FontSize = 15;
-
-stry = '$$\log(SE({u}_t, u_1^*))$$';
-strx = '$$\mathrm{power\ iterations} (t) $$';
-ylabel(stry, 'Interpreter', 'latex', 'FontSize', 18) 
-xlabel(strx, 'Interpreter', 'latex', 'FontSize', 18) 
-title('PM without normalization')
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %the algorithm works even with uniform r.v. initialization as opposed to
