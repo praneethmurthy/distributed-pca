@@ -114,3 +114,5 @@ strx = '$$\mathrm{power\ iterations} (t) $$';
 ylabel(stry, 'Interpreter', 'latex', 'FontSize', 18)
 xlabel(strx, 'Interpreter', 'latex', 'FontSize', 18)
 title('PM with normalization')
+
+big_matrix = [linspace(1, power_iter+1, power_iter/taubatch+1)', conv_norm_mat(1:taubatch:end,:), conv_batch_mat(1:taubatch:end,:)];

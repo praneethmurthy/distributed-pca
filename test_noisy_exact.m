@@ -3,7 +3,7 @@
 %%move all the codes that try to generate more noise along the true
 %%direction to a different file...
 
-
+eige
 
 clear
 clc
@@ -122,10 +122,10 @@ for ii = 1 : power_iter
     
     conv_noise(ii+1) = sin(subspace(u_true, u_noise));
     if(~mod(ii, taubatch))
-        norm(u_noise)
         %[u_noise,~] = qr(u_noise, 0);
         u_noise = orth(u_noise);
     end
+    Lamest = u_noise' * X * u_noise;
 end 
 
 subplot(224)
