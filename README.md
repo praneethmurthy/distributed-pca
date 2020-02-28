@@ -10,10 +10,10 @@ A: For the fully observed, static subspace setting
 
 
 B: For the STmiss problem which may contain missing entries
-4. NORST_fed.m: this script contains the function to implement Algorithm 3. This tracks time-varying subspaces, deals with noise, and provides a "federated, over the air implementation".
-5. st_miss_fed.m: this is the wrapper to generate data for st-miss problem, and implement FedSTMiss.
-6. simple_evd, ccgls, calc_subspace_error, cgls, phifun.m: helper functions used inside NORST_fed.m
-7. PROPACK: some linear algebra routines
+1. NORST_fed.m: this script contains the function to implement Algorithm 3. This tracks time-varying subspaces, deals with noise, and provides a "federated, over the air implementation".
+2. st_miss_fed.m: this is the wrapper to generate data for st-miss problem, and implement FedSTMiss.
+3. simple_evd, ccgls, calc_subspace_error, cgls, phifun.m: helper functions used inside NORST_fed.m
+4. PROPACK: some linear algebra routines
 
 
 
