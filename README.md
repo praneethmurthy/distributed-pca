@@ -1,7 +1,8 @@
-# Folder contains codes for federated, over the air, PCA
+# MATLAB implementaion of Federated Over-the-Air PCA and Subspace Learning from Incomplete data
 
 If you use the codes please cite the following paper
-[1] "Federated Over-the-Air Subspace Learning from Incomplete Data", Praneeth Narayanamurthy, Namrata Vaswani, Aditya Ramamoorthy, https://arxiv.org/abs/2002.12873 
+
+## [1] "Federated Over-the-Air Subspace Learning from Incomplete Data", Praneeth Narayanamurthy, Namrata Vaswani, Aditya Ramamoorthy, https://arxiv.org/abs/2002.12873 
 
 Here are the list of files:
 
