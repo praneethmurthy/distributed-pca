@@ -18,4 +18,4 @@ B: For the STmiss problem which may contain missing entries
 4. PROPACK: some linear algebra routines
 
 
-
+##need to add real data experiments, should be straightforward, but will have to figure out what to compare with. 
