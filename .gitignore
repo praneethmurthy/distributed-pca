@@ -24,12 +24,9 @@ temp/
 data/
 figures/
 results/
-
+export_fig-master/
 
 #ignore vim swap files
 *.swp
 
-#other codes (older LRPR)
-NORST-rmc-master/
-paper/
 

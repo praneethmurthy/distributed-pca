@@ -31,7 +31,6 @@ BernMat = rand(n, t_max);
 T = 1 .* (BernMat <= 1 - rho);
     
 % (b)-Moving Model: (rectangular object moving along the width of the video)
-T = ones(n,m);
 
 height = imSize(1);
 width = imSize(2);    
@@ -41,6 +40,8 @@ a = floor(height/2) - 2;
 b = a + 4;
 
 % frames with moving object
+% T = ones(n,m);
+% 
 % idx_frame = [width * 0 + 1 : width * floor(t_max/width)];
 % 
 % smin = 0;
@@ -58,7 +59,7 @@ b = a + 4;
 %         smax = 1;
 %         smin = 0;
 %     end
-%end
+% end
 
 M = L .* T; % corrupted version of the video frames
 
@@ -79,12 +80,14 @@ M_norst = M - mu;
 t_norst = tic;
 % initialization of true subspace
 fprintf('Initialization...\t');
-P_init = orth(ncrpca(L(:,1:100), r, tol, 100));
-fprintf('Subspace initialized\n');
+%P_init = orth(ncrpca(L(:,1:100), r, tol, 100));
+[P_init, ~] = svds(L(:,100), r);
+%P_init = randn(n, r);
+%fprintf('Subspace initialized\n');
 
-[FG,BG] = NORST_video(M_norst, mu, T, P_init, ev_thresh, alpha, K, omega,tol);
+[FG,BG] = norst_video_orig(M_norst, mu, T, P_init, ev_thresh, alpha, K, omega,tol);
 
 t_NORST = toc(t_norst);                
 
 %% Display the reconstructed video
-DisplayVideo(L, T, M, BG, imSize,'recovered_BackGround_video.avi')
+%DisplayVideo(L, T, M, BG, imSize, 'recovered_BackGround_video_norst.avi')

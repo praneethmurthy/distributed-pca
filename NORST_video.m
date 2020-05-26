@@ -70,15 +70,15 @@ for ii = 1 : t_max
     opts.print = 0;
 
     
-    x_t_hat_cs = yall1(Atf, y_t, opts);
-    omega = 0.9 * sqrt(M(:, ii)' * M(:, ii) / n);
-    x_cs_hat(:,ii) = x_t_hat_cs;
-    
-    t_hat_temp = find(abs(x_t_hat_cs) > omega);
-    T_hat(t_hat_temp, ii) = 255;
+%     x_t_hat_cs = yall1(Atf, y_t, opts);
+%     omega = 0.9 * sqrt(M(:, ii)' * M(:, ii) / n);
+%     x_cs_hat(:,ii) = x_t_hat_cs;
+%     
+%     t_hat_temp = find(abs(x_t_hat_cs) > omega);
+%     T_hat(t_hat_temp, ii) = 255;
     
     %% Estimate signal components
-    T_union = unique([t_hat_temp;find(T_obs(:,ii) == 0)]);
+    T_union = unique([find(T_obs(:,ii) == 0)]);
     
     S_hat(T_union, ii) = cgls(phi_t(:, T_union), y_t, 0, tol, 20);
     L_hat(:, ii) = M(:, ii) - S_hat(:, ii);
