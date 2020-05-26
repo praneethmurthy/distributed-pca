@@ -29,4 +29,7 @@ export_fig-master/
 #ignore vim swap files
 *.swp
 
+#videos
+*.avi
+
 
