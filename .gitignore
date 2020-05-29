@@ -25,6 +25,7 @@ data/
 figures/
 results/
 export_fig-master/
+TSP-paper/
 
 #ignore vim swap files
 *.swp

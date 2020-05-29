@@ -8,6 +8,7 @@ clc;
 addpath('YALL1_v1.4') % ell-1 minimization package
 addpath('data') % contains of sample videos
 addpath('PROPACK/');
+addpath('export_fig-master/')
 %% Loading video data matrix
 video = ["Curtain","SwitchLight","Lobby"];
 PATH = '../norst-miss/data';
@@ -85,7 +86,7 @@ fprintf('Initialization...\t');
 %P_init = randn(n, r);
 %fprintf('Subspace initialized\n');
 
-[FG,BG] = norst_video_orig(M_norst, mu, T, P_init, ev_thresh, alpha, K, omega,tol);
+[FG,BG] = NORST_video(M_norst, mu, T, P_init, ev_thresh, alpha, K, omega,tol);
 
 t_NORST = toc(t_norst);                
 
