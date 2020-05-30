@@ -101,7 +101,7 @@ for ii = 1 : t_max
             end
         else        %%pca phase
             %P_hat = simpleEVD((L_hat(:, max(1, ii - alpha + 1) : ii)), r);
-            P_hat = simpleEVD_fed((L_hat(:, max(1, ii - alpha + 1) : ii)), r, 500, 1, 1e-1);
+            P_hat = simpleEVD_fed((L_hat(:, max(1, ii - alpha + 1) : ii)), r, 500, 1, 1e10);
             phi_t = speye(n) - P_hat * P_hat';
             k = k + 1;            
             if(k == K + 1)
