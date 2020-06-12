@@ -70,15 +70,15 @@ for ii = 1 : t_max
     opts.print = 0;
 
     
-%     x_t_hat_cs = yall1(Atf, y_t, opts);
-%     omega = 0.9 * sqrt(M(:, ii)' * M(:, ii) / n);
-%     x_cs_hat(:,ii) = x_t_hat_cs;
-%     
-%     t_hat_temp = find(abs(x_t_hat_cs) > omega);
-%     T_hat(t_hat_temp, ii) = 255;
+    x_t_hat_cs = yall1(Atf, y_t, opts);
+    omega = 0.9 * sqrt(M(:, ii)' * M(:, ii) / n);
+    x_cs_hat(:,ii) = x_t_hat_cs;
+    
+    t_hat_temp = find(abs(x_t_hat_cs) > omega);
+    T_hat(t_hat_temp, ii) = 255;
     
     %% Estimate signal components
-    T_union = unique([find(T_obs(:,ii) == 0)]);
+    T_union = unique([t_hat_temp;find(T_obs(:,ii) == 0)]);
     
     S_hat(T_union, ii) = cgls(phi_t(:, T_union), y_t, 0, tol, 20);
     L_hat(:, ii) = M(:, ii) - S_hat(:, ii);
@@ -87,8 +87,7 @@ for ii = 1 : t_max
     BG(:, ii) = L_hat(:,ii) + mu;
     
     %% Subspace update
-    if(~mod(ii + 1 , alpha))
-        ii
+    if(~mod(ii + 1 , alpha))        
         u = (ii + 1) / alpha;
         idx = (u-1) * alpha + 1 : u * alpha ;
         
@@ -101,8 +100,7 @@ for ii = 1 : t_max
                 k = 0;
             end
         else        %%pca phase
-            %P_hat = simpleEVD((L_hat(:, max(1, ii - alpha + 1) : ii)), r);
-            P_hat = simpleEVD_fed((L_hat(:, max(1, ii - alpha + 1) : ii)), r, 500, 1, 0);
+            P_hat = simpleEVD((L_hat(:, max(1, ii - alpha + 1) : ii)), r);
             phi_t = speye(n) - P_hat * P_hat';
             k = k + 1;            
             if(k == K + 1)

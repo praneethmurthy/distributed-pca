@@ -13,7 +13,7 @@ function  DisplayVideo( Data1, Data2, Data3, Data4, imSize, VideoName )
 %   VideoName = name for the output video file.
 
 writerObj = VideoWriter(VideoName);
-writerObj.FrameRate = 15; % FPS: frames per second
+writerObj.FrameRate = 60; % FPS: frames per second
 open(writerObj); 
 figure;
 
@@ -32,11 +32,11 @@ for i = 1: size(Data1,2)
     img4 = reshape(img4, imSize);
     
     h = subplot('position',[0.01,0.50,0.47, 0.42]);
-    imshow(img1/255, 'Colormap', jet);
+    imshow(img1/255);
     title(['data stream (time:',num2str(i),')'])
 
     h = subplot('position',[0.49,0.50,0.47, 0.42]);
-    imshow(img2/255);
+    imshow(img2/255,[]);
     title('missing entries support')
 
     h = subplot('position',[0.01,0.001,0.47, 0.42]);
@@ -44,7 +44,7 @@ for i = 1: size(Data1,2)
     title('corrupted data')
 
     h = subplot('position',[0.49,0.001,0.47, 0.42]);
-    imshow(img4/255, 'Colormap', jet);
+    imshow(img4/255);
     title('reconstructed data')    
     
     frame = getframe(gcf); % 'gcf' can handle if you zoom in to take a movie.
