@@ -1,10 +1,7 @@
 clear;
 clc;
 
-addpath('NORST-rmc-master/');
-addpath('NORST-rmc-master/PROPACK');
-
-
+addpath('PROPACK')
 
 %% Algorithms to run
 NORST = 1;
@@ -15,17 +12,13 @@ n = 1000;
 t_max = 3000;
 alpha = 60;
 f = 100;
-MC = 50;
+MC = 1;
 t_calc_pca = [1:alpha: t_max];
 t_calc = t_calc_pca;
 
 %NORST
 temp_SE_NORST = zeros(length(t_calc_pca), MC);
 temp_err_L_NORST = zeros(t_max, MC);
-
-temp_SE_NORST_fed = zeros(length(t_calc_pca), MC);
-temp_err_L_NORST_fed = zeros(t_max, MC);
-
 t_NORST = 0;
 err_L_fro_NORST = zeros(MC,1);
 
@@ -119,10 +112,18 @@ for mc = 1 : MC
         U_track{i} = U0;
         L(:, t_1:t_2) = U0 * coeff_train(:,t_1:t_2);
         
+        % subspace change at each time t
+%         if t == 1499
+%             U = expm(100*B1)*U0;        
+%         else
+%             delta_t = 1e-7;
+%             U = expm(delta_t*B1)*U0;
+%         end 
+        
         U = expm(delta_t*B1)*U0;        
         U0 = U;
     end 
-    eps_noise = 0; % noise
+    eps_noise = 1e-3; % noise
     L = L + eps_noise * (rand(n,t_max) - 0.5);
     M = L .* T ;
     
@@ -135,38 +136,30 @@ for mc = 1 : MC
     overlap_step = alpha; % if it is set to alpha then windows don't overlap
     R = 0; % number of reuse 
     
+%     P_init = orth(randn(n,r_0));
     P_init = zeros(n,r_0);
-    
-    
-    t_norst_fed = tic;
-    [L_hat_fed, P_hat_fed, S_hat_fed, t_hat_fed, P_track_full_fed, t_calc_fed] =  ...
-        NORST_fed(M, T, r_0, ev_thresh, alpha, K,R,overlap_step);
-    t_norst_fed = toc(t_norst_fed);
     
     t_norst = tic;
     [L_hat, P_hat, S_hat, t_hat, P_track_full, t_calc] =  ...
         NORST_random(M, T, r_0, ev_thresh, alpha, K,R,overlap_step);
     t_NORST = toc(t_norst)
     err_L_fro_NORST(mc) = norm(L-L_hat,'fro')/norm(L,'fro');
+    
     end
 
     %% Compute Performance Metrics
-    %frobenius norm errors
+    %compute the "frobenius norm errors"
 if(NORST == 1)
     temp_err_L_NORST(:, mc) = sqrt(mean((L - L_hat).^2, 1)) ...
         ./ sqrt(mean(L.^2, 1));
-    temp_err_L_NORST_fed(:, mc) = sqrt(mean((L - L_hat_fed).^2, 1)) ...
-        ./ sqrt(mean(L.^2, 1));
 end
 
-    %subspace errors
+    %computing subspace errors
    for jj = 1 : length(t_calc_pca)
             tt = ceil(t_calc_pca(jj)/subspace_size);
             if(NORST == 1)           
             temp_SE_NORST(jj, mc) = ...
                 Calc_SubspaceError(P_track_full{jj}, U_track{tt});
-            temp_SE_NORST_fed(jj, mc) = ...
-                Calc_SubspaceError(P_track_full_fed{jj}, U_track{tt});
             end
             
             if(NORST_OFFLINE == 1)           
@@ -180,18 +173,12 @@ end
 err_SE_NORST = mean(temp_SE_NORST, 2);
 err_L_NORST = mean(temp_err_L_NORST, 2);
 
-err_SE_NORST_fed = mean(temp_SE_NORST_fed, 2);
-err_L_NORST_fed = mean(temp_err_L_NORST_fed, 2);
-
 figure
 strx = 't';
 stry = '$$\log_{10} dist(\hat{P}_{(t)}, P_{(t)})$$';
-
+% 
 semilogy(t_calc_pca(1:2:end),err_SE_NORST(1:2:end),'-*r','LineWidth',2,'MarkerSize',10);
-hold
-semilogy(t_calc_pca(1:2:end),err_SE_NORST_fed(1:2:end),'-*b','LineWidth',2,'MarkerSize',10);
 grid on
-axis tight
+
 xlabel(strx, 'Interpreter', 'LaTeX', 'FontSize', 20);
 ylabel(stry, 'Interpreter', 'LaTeX', 'FontSize', 20);
-legend('NORST', 'NORST-fed')
