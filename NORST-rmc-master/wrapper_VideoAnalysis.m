@@ -10,7 +10,7 @@ addpath('data') % contains of sample videos
 
 %% Loading video data matrix
 video = ["Curtain","SwitchLight","Lobby"];
-PATH = '/home/vahidd/Git/NORST-rmc/data';
+PATH = './data';
 load([PATH,'/',char(video(1)),'.mat'])
 
 L = I;  % video with foreground
@@ -73,6 +73,8 @@ tol = 1e-3; % tolerance in cgls and ncrpca functions
 % mean subtraction
 mu = mean(Train,2);
 M_norst = M - mu;
+
+mean(M_norst(:))
 
 t_norst = tic;
 % initialization of true subspace

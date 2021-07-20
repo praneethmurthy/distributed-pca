@@ -11,7 +11,7 @@ addpath('PROPACK/');
 addpath('export_fig-master/')
 %% Loading video data matrix
 video = ["Curtain","SwitchLight","Lobby"];
-PATH = '../norst-miss/data';
+PATH = 'data';
 load([PATH,'/',char(video(1)),'.mat'])
 
 L = I;  % video with foreground
