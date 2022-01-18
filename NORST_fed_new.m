@@ -1,5 +1,5 @@
 function [L_hat, P_hat, S_hat, t_hat, ...
-    P_track_full, T_calc]= NORST_fed(M, T, r, ev_thresh, alpha, K,R,hop)
+    P_track_full, T_calc]= NORST_fed_new(M, T, r, ev_thresh, alpha, K,R,hop, sig)
 
 %% Initializations
 %thresh = ev_thresh / 2;
